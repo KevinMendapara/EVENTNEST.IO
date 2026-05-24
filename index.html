@@ -28,11 +28,26 @@
     <script>
         // Prevent unintended banner/hero flicker during initial redirect.
         // Only redirect to splash once per session.
-        // If splash is already seen, do NOT redirect again.
-        if (!sessionStorage.getItem('splashSeen')) {
-            sessionStorage.setItem('splashSeen', 'true');
-            window.location.href = "splash.html";
-        }
+        // If splash is already seen or entered from splash, do NOT redirect again.
+        (function() {
+            var urlParams = new URLSearchParams(window.location.search);
+            var entered = urlParams.get('entered') === 'true';
+            var splashSeen = false;
+            
+            try {
+                if (entered) {
+                    sessionStorage.setItem('splashSeen', 'true');
+                }
+                splashSeen = sessionStorage.getItem('splashSeen') === 'true';
+            } catch (e) {
+                // Fallback for file:// protocol or private mode where sessionStorage is restricted
+                splashSeen = entered;
+            }
+
+            if (!splashSeen) {
+                window.location.href = "splash.html";
+            }
+        })();
     </script>
     <title>Event Ticket Booking</title>
 
@@ -420,7 +435,7 @@
             <!-- Movie Ticket Card -->
             <div class="col-md-4">
                 <div class="card h-100">
-                    <img src="images/main_hero.png" class="card-img-top" alt="Movies" onerror="this.onerror=null; this.src='images/main_hero.png';">
+                    <img src="images/cinema_hero.jpg" class="card-img-top" alt="Movies" onerror="this.onerror=null; this.src='images/main_hero.png';">
                     <div class="card-body">
                         <h5 class="card-title">Movies</h5>
                         <p class="card-text">Grab tickets for the latest blockbusters at your nearest theater.</p>

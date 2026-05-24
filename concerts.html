@@ -49,41 +49,25 @@
   </nav>
 
   <!-- Hero Section -->
-  <header class="concert-hero">
-      <div class="hero-overlay"></div>
-      <div class="hero-content">
-          <h1 class="display-3 fw-bold text-white mb-3">Live Concerts & Festivals</h1>
-          <p class="lead text-light mb-4">Experience the magic of live music. Book tickets for your favorite artists.</p>
-          <button class="btn btn-danger btn-lg px-5 rounded-pill fw-bold shadow" onclick="document.getElementById('concertList').scrollIntoView({behavior: 'smooth'})">Explore Artists</button>
-      </div>
-  </header>
+  <header class="concert-hero"></header>
 
   <style>
       .concert-hero {
           position: relative;
-          height: 60vh;
-          min-height: 400px;
-          background: url('main_hero.png') center/cover no-repeat;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          text-align: center;
+          height: 45vh;
+          min-height: 300px;
+          background: url('images/c_hero.jpg') center/cover no-repeat;
+          margin-top: 76px; /* offset fixed navbar */
           margin-bottom: 40px;
+          border-bottom: 2px solid var(--netflix-red, #e50914);
+          box-shadow: 0 10px 30px rgba(0,0,0,0.5);
       }
-      .concert-hero .hero-overlay {
-          position: absolute;
-          inset: 0;
-          background: linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(20,20,20,1) 100%);
-      }
-      .concert-hero .hero-content {
-          position: relative;
-          z-index: 2;
-          padding: 20px;
-          animation: fadeInUp 1s ease-out;
-      }
-      @keyframes fadeInUp {
-          from { opacity: 0; transform: translateY(30px); }
-          to { opacity: 1; transform: translateY(0); }
+      @media (max-width: 768px) {
+          .concert-hero {
+              height: 30vh;
+              min-height: 200px;
+              margin-top: 56px;
+          }
       }
   </style>
 

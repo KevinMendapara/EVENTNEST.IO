@@ -590,7 +590,8 @@
         function enterSite() {
             document.body.style.transition = 'opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1)';
             document.body.style.opacity = '0';
-            setTimeout(() => { window.location.href = "index.html"; }, 620);
+            // Append ?entered=true to safely bypass redirect loops in offline file:// environments
+            setTimeout(() => { window.location.href = "index.html?entered=true"; }, 620);
         }
     </script>
 </body>

@@ -57,6 +57,12 @@
       </div>
     </div>
 
+    <!-- Artist Bio Section (Loaded dynamically from Last.fm API) -->
+    <div id="artistBioPanel" class="p-4 mb-5 rounded-4 d-none" style="background: #141414; border: 1px solid #333; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+        <h4 class="text-white fw-bold mb-3"><i class="bi bi-person-badge-fill text-danger me-2"></i>About the Artist</h4>
+        <p id="artistBioText" class="text-light mb-0" style="font-size: 1rem; line-height: 1.6; font-style: italic;"></p>
+    </div>
+
     <!-- Seat Selection -->
     <div class="seat-selection-panel p-5 mb-5 rounded-4" style="background: #141414; border: 1px solid #333; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
         
@@ -140,6 +146,29 @@
         heroBanner.style.backgroundImage = "url('images/c_hero.jpg')";
       };
       mainImg.src = data.img;
+
+      // Fetch Artist Bio dynamically from Last.fm API
+      if (data.name) {
+        const apiKey = 'f41b44e21e1a1f08b9f1549c5fe45ece';
+        const url = `https://ws.audioscrobbler.com/2.0/?method=artist.getinfo&artist=${encodeURIComponent(data.name)}&api_key=${apiKey}&format=json`;
+        
+        fetch(url)
+          .then(res => res.json())
+          .then(resData => {
+            if (resData && resData.artist && resData.artist.bio && resData.artist.bio.summary) {
+              let bioText = resData.artist.bio.summary;
+              const linkIndex = bioText.indexOf('<a href=');
+              if (linkIndex !== -1) {
+                bioText = bioText.substring(0, linkIndex);
+              }
+              if (bioText.trim() !== "") {
+                document.getElementById("artistBioText").innerHTML = bioText.trim();
+                document.getElementById("artistBioPanel").classList.remove("d-none");
+              }
+            }
+          })
+          .catch(err => console.warn("Failed to load artist details from Last.fm:", err));
+      }
     } else {
       window.location.href = "index.html";
     }

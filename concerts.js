@@ -147,6 +147,39 @@ function handleConcertImgError(img) {
 }
 
 
+// ================= LAST.FM API INTEGRATION =================
+async function loadArtistLastFmData(artistName, index, localImg, imgElementId) {
+  const apiKey = 'f41b44e21e1a1f08b9f1549c5fe45ece';
+  const url = `https://ws.audioscrobbler.com/2.0/?method=artist.getinfo&artist=${encodeURIComponent(artistName)}&api_key=${apiKey}&format=json`;
+
+  try {
+    const response = await fetch(url);
+    const data = await response.json();
+
+    if (data && data.artist) {
+      const artist = data.artist;
+
+      // 1. Inject biography summary
+      const bioElement = document.getElementById(`bio-${index}`);
+      if (bioElement && artist.bio && artist.bio.summary) {
+        // Strip Last.fm standard HTML link (e.g. " <a href="...">Read more on Last.fm</a>")
+        let bioText = artist.bio.summary;
+        const linkIndex = bioText.indexOf('<a href=');
+        if (linkIndex !== -1) {
+          bioText = bioText.substring(0, linkIndex);
+        }
+        bioElement.innerHTML = bioText.trim() || `Caught live! Catch ${artistName} performing their top chartbusters in an spectacular show.`;
+      }
+    }
+  } catch (error) {
+    console.warn(`Last.fm load failed for ${artistName}:`, error);
+    const bioElement = document.getElementById(`bio-${index}`);
+    if (bioElement) {
+      bioElement.innerHTML = `An incredible musical journey! Capture the spellbinding energy of ${artistName} performing live.`;
+    }
+  }
+}
+
 // ================= DISPLAY =================
 function displayConcerts(data) {
   let container = document.getElementById("concertList");
@@ -158,11 +191,12 @@ function displayConcerts(data) {
     return;
   }
 
+  let html = "";
   data.forEach((c, index) => {
     const imgId = `concert-img-${index}`;
     const fallbacks = getImageFallbacks(c.img);
 
-    container.innerHTML += `
+    html += `
     <div class="card text-white mb-4" style="background: rgba(20, 20, 20, 0.95); border: 1px solid #333; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.5);">
       <div class="row g-0 align-items-center">
         <!-- Image Section -->
@@ -200,6 +234,14 @@ function displayConcerts(data) {
                   <span>${c.venue}, ${c.city}</span>
                 </div>
               </div>
+              
+              <!-- Biography Container -->
+              <div class="artist-bio-wrapper mt-3">
+                <h6 class="text-secondary mb-1" style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px;">Artist Profile & Bio</h6>
+                <p class="artist-bio text-light" id="bio-${index}" style="font-size: 0.9rem; max-width: 650px; line-height: 1.5; font-style: italic; margin-bottom: 0;">
+                  Loading biography details...
+                </p>
+              </div>
             </div>
             
             <!-- Pricing & Action -->
@@ -215,6 +257,13 @@ function displayConcerts(data) {
       </div>
     </div>
     `;
+  });
+  container.innerHTML = html;
+
+  // Run async preloading for Last.fm biographies
+  data.forEach((c, index) => {
+    const imgId = `concert-img-${index}`;
+    loadArtistLastFmData(c.name, index, c.img, imgId);
   });
 }
 
