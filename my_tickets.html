@@ -51,13 +51,15 @@
         .ticket-scene {
             perspective: 1500px;
             width: 100%;
-            height: 300px;
+            min-height: 330px;
+            height: auto;
             margin-bottom: 20px;
         }
 
         .ticket-card {
             width: 100%;
             height: 100%;
+            min-height: 330px;
             position: relative;
             transform-style: preserve-3d;
             transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -396,10 +398,42 @@
                                             <span class="info-label"><i class="bi bi-calendar me-2"></i>Booked On</span>
                                             <span class="info-val">${order.date || 'Unknown'}</span>
                                         </div>
+                                        ${order.eventDate ? `
+                                        <div class="info-row">
+                                            <span class="info-label"><i class="bi bi-calendar-event me-2"></i>Event Date</span>
+                                            <span class="info-val">${order.eventDate} ${order.eventTime ? `at ${order.eventTime}` : ''}</span>
+                                        </div>
+                                        ` : ''}
+                                        ${order.venue ? `
+                                        <div class="info-row">
+                                            <span class="info-label"><i class="bi bi-geo-alt me-2"></i>Venue</span>
+                                            <span class="info-val text-truncate" style="max-width: 180px; display: inline-block;">${order.venue}</span>
+                                        </div>
+                                        ` : ''}
+                                        ${order.theatre ? `
+                                        <div class="info-row">
+                                            <span class="info-label"><i class="bi bi-camera-reels me-2"></i>Cinema</span>
+                                            <span class="info-val text-truncate" style="max-width: 180px; display: inline-block;">${order.theatre}</span>
+                                        </div>
+                                        <div class="info-row">
+                                            <span class="info-label"><i class="bi bi-display me-2"></i>Screen & Format</span>
+                                            <span class="info-val">${order.screen || 'Screen 1'} (${order.format || '2D'})</span>
+                                        </div>
+                                        <div class="info-row">
+                                            <span class="info-label"><i class="bi bi-clock me-2"></i>Showtime</span>
+                                            <span class="info-val">${order.time || 'N/A'}</span>
+                                        </div>
+                                        ` : ''}
                                         <div class="info-row">
                                             <span class="info-label"><i class="bi bi-person-bounding-box me-2"></i>Seats</span>
                                             <span class="info-val">${parsedSeats || 'General'}</span>
                                         </div>
+                                        ${order.addons && Array.isArray(order.addons) && order.addons.length > 0 ? `
+                                        <div class="info-row">
+                                            <span class="info-label"><i class="bi bi-cart-plus me-2"></i>Add-ons</span>
+                                            <span class="info-val text-warning text-truncate" style="max-width: 150px; display: inline-block;">${order.addons.map(a => `${a.name} (x${a.quantity})`).join(", ")}</span>
+                                        </div>
+                                        ` : ''}
                                         <div class="info-row border-0 mb-0 pb-0">
                                             <span class="info-label"><i class="bi bi-currency-rupee me-2"></i>Amount Paid</span>
                                             <span class="info-val text-success fw-bold fs-5">₹${order.amount || '0'}</span>
@@ -415,7 +449,10 @@
                                     <canvas id="qr-${index}"></canvas>
                                 </div>
                                 <div class="back-msg">Show at the entrance</div>
-                                <p class="text-secondary small mb-0">${order.id || 'N/A'}</p>
+                                <p class="text-secondary small mb-1">${order.id || 'N/A'}</p>
+                                <button class="btn btn-sm btn-light mt-1 mb-2 fw-bold" style="font-size:0.75rem; padding: 2px 10px; border-radius: 20px;" onclick="event.stopPropagation(); downloadSingleTicket('${order.id}', '${order.title ? order.title.replace(/'/g, "\\'") : 'Event'}', '${catText}', '${parsedSeats}', '${order.date}', '${order.amount}', '${order.addons ? JSON.stringify(order.addons).replace(/'/g, "\\'") : ''}', '${order.theatre ? order.theatre.replace(/'/g, "\\'") : ''}', '${order.screen ? order.screen.replace(/'/g, "\\'") : ''}', '${order.time || ''}', '${order.format || ''}', '${order.eventDate ? order.eventDate.replace(/'/g, "\\'") : ''}', '${order.eventTime || ''}', '${order.venue ? order.venue.replace(/'/g, "\\'") : ''}')">
+                                    <i class="bi bi-download me-1"></i> Download
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -424,14 +461,82 @@
                 
                 // Generate QR
                 setTimeout(() => {
-                    QRCode.toCanvas(document.getElementById(`qr-${index}`), order.id || 'TICKET', { 
+                    const canvas = document.getElementById(`qr-${index}`);
+                    if (!canvas) return;
+                    
+                    let qrAddonsStr = "";
+                    if (order.addons && Array.isArray(order.addons) && order.addons.length > 0) {
+                        qrAddonsStr = `\nAdd-ons: ` + order.addons.map(a => `${a.name} (x${a.quantity})`).join(", ");
+                    }
+
+                    let qrEventDetailsStr = "";
+                    if (order.venue) {
+                        qrEventDetailsStr = `\nVenue: ${order.venue}\nEvent Date: ${order.eventDate || ''} ${order.eventTime || ''}`;
+                    } else if (order.theatre) {
+                        qrEventDetailsStr = `\nTheatre: ${order.theatre}\nScreen: ${order.screen || 'Screen 1'} (${order.format || '2D'})\nShowtime: ${order.time || 'N/A'}`;
+                    }
+
+                    const qrText = `Booking ID: ${order.id || 'N/A'}
+Event: ${order.title || 'Event'}
+Category: ${catText}${qrEventDetailsStr}
+Seats: ${parsedSeats || 'General Admission'}${qrAddonsStr}
+Booking Date: ${order.date || 'Unknown'}
+Amount: Rs. ${order.amount || '0'}
+User: ${userName} (${userEmail})`;
+
+                    QRCode.toCanvas(canvas, qrText, { 
                         width: 100, 
                         margin: 0,
                         color: { dark: '#000000', light: '#ffffff' }
+                    }, (error) => {
+                        if (error) {
+                            console.error("QR Code generation error:", error);
+                            canvas.outerHTML = `<div class="text-danger border border-danger p-2 text-center" style="font-size:0.65rem;"><i class="bi bi-exclamation-triangle-fill"></i> QR Code failed. ID: ${order.id || 'N/A'}</div>`;
+                        }
                     });
                 }, 100);
             });
         });
+
+        function downloadSingleTicket(bookingId, title, category, seats, date, amount, addonsJSON, theatre, screen, time, format, eventDate, eventTime, venue) {
+            let addonsTextLine = "";
+            if (addonsJSON) {
+                try {
+                    const parsed = JSON.parse(addonsJSON);
+                    if (Array.isArray(parsed) && parsed.length > 0) {
+                        addonsTextLine = `\nAdd-ons:        ` + parsed.map(a => `${a.name} (x${a.quantity})`).join(", ");
+                    }
+                } catch(e) {}
+            }
+
+            let eventDetailsText = "";
+            if (venue) {
+                eventDetailsText = `\nVenue:          ${venue}\nEvent Date:     ${eventDate || ''} ${eventTime || ''}`;
+            } else if (theatre) {
+                eventDetailsText = `\nTheatre:        ${theatre}\nScreen:         ${screen || 'Screen 1'} (${format || '2D'})\nShowtime:       ${time || 'N/A'}`;
+            }
+
+            const textContent = `=========================================
+          🎟️ EVENTNEST TICKET 🎟️          
+=========================================
+Booking ID:     ${bookingId}
+Event:          ${title}
+Category:       ${category}${eventDetailsText}
+Booked On:      ${date}
+Seats Selected: ${seats}${addonsTextLine}
+Amount Paid:    Rs. ${amount}
+Status:         CONFIRMED ✅
+=========================================
+Enjoy your experience! Thank you for 
+booking with EventNest.
+=========================================`;
+
+            const blob = new Blob([textContent], { type: "text/plain" });
+            const a = document.createElement("a");
+            a.href = URL.createObjectURL(blob);
+            a.download = `Ticket_${bookingId}.txt`;
+            a.click();
+        }
     </script>
 </body>
 </html>

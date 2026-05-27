@@ -254,9 +254,9 @@
           </button>
           <div class="collapse navbar-collapse" id="menu">
               <ul class="navbar-nav ms-auto">
-                  <li class="nav-item"><a href="index.html" class="nav-link">Home</a></li>
-                  <li class="nav-item"><a href="movies.html" class="nav-link">Movies</a></li>
-                  <li class="nav-item"><a href="concerts.html" class="nav-link">Concerts</a></li>
+                  <li class="nav-item"><a href="index.html" class="nav-link" style="color: rgba(255,255,255,0.75);">Home</a></li>
+                  <li class="nav-item"><a href="movies.html" class="nav-link" style="color: rgba(255,255,255,0.75);">Movies</a></li>
+                  <li class="nav-item"><a href="concerts.html" class="nav-link" style="color: rgba(255,255,255,0.75);">Concerts</a></li>
                   <li class="nav-item"><a href="cricket.html" class="nav-link active" style="color:#e50914;">Cricket</a></li>
               </ul>
           </div>
@@ -270,6 +270,96 @@
         <h1>Live Cricket Action</h1>
         <p class="lead">Book tickets for IPL, Men's & Women's Internationals and T20 Leagues across India.</p>
     </div>
+  </div>
+
+  <!-- Match Center Filters Scoreboard Panel -->
+  <div class="container mt-4">
+      <div class="p-4 rounded-4 shadow scoreboard-filters" style="background: #11111b; border: 1px solid rgba(229, 9, 20, 0.2); box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+          <h5 class="text-white fw-bold mb-3 d-flex align-items-center"><i class="bi bi-sliders text-danger me-2"></i> MATCH CENTER FILTERS</h5>
+          <div class="row g-3">
+              <div class="col-md-3 col-sm-6">
+                  <label class="form-label text-secondary small fw-bold">Search Match</label>
+                  <input class="form-control" type="search" placeholder="Search team or venue..." id="search" style="background: rgba(255,255,255,0.05); color:#fff; border: 1px solid #333; border-radius: 10px;">
+              </div>
+              <div class="col-md-3 col-sm-6">
+                  <label class="form-label text-secondary small fw-bold">Filter by Team</label>
+                  <select class="form-select" id="teamFilter" style="background: rgba(255,255,255,0.05); color:#fff; border: 1px solid #333; border-radius: 10px; padding: 7px 14px;">
+                      <option value="" style="background:#111;">All Teams</option>
+                      <option value="Mumbai Indians" style="background:#111;">Mumbai Indians</option>
+                      <option value="Chennai Super Kings" style="background:#111;">Chennai Super Kings</option>
+                      <option value="Bengaluru" style="background:#111;">RCB</option>
+                      <option value="Kolkata Knight Riders" style="background:#111;">KKR</option>
+                      <option value="Delhi Capitals" style="background:#111;">Delhi Capitals</option>
+                      <option value="Sunrisers Hyderabad" style="background:#111;">Sunrisers Hyderabad</option>
+                      <option value="Rajasthan Royals" style="background:#111;">Rajasthan Royals</option>
+                      <option value="Gujarat Titans" style="background:#111;">Gujarat Titans</option>
+                      <option value="Punjab Kings" style="background:#111;">Punjab Kings</option>
+                      <option value="Lucknow Super Giants" style="background:#111;">Lucknow Super Giants</option>
+                      <option value="India" style="background:#111;">India</option>
+                      <option value="Australia" style="background:#111;">Australia</option>
+                      <option value="England" style="background:#111;">England</option>
+                      <option value="South Africa" style="background:#111;">South Africa</option>
+                      <option value="New Zealand" style="background:#111;">New Zealand</option>
+                  </select>
+              </div>
+              <div class="col-md-3 col-sm-6">
+                  <label class="form-label text-secondary small fw-bold">Filter by City</label>
+                  <select class="form-select" id="cityFilter" style="background: rgba(255,255,255,0.05); color:#fff; border: 1px solid #333; border-radius: 10px; padding: 7px 14px;">
+                      <option value="" style="background:#111;">All Cities</option>
+                      <option value="Mumbai" style="background:#111;">Mumbai</option>
+                      <option value="Bangalore" style="background:#111;">Bangalore</option>
+                      <option value="Delhi" style="background:#111;">Delhi</option>
+                      <option value="Jaipur" style="background:#111;">Jaipur</option>
+                      <option value="Mohali" style="background:#111;">Mohali</option>
+                      <option value="Kolkata" style="background:#111;">Kolkata</option>
+                      <option value="Ahmedabad" style="background:#111;">Ahmedabad</option>
+                      <option value="Chennai" style="background:#111;">Chennai</option>
+                      <option value="Hyderabad" style="background:#111;">Hyderabad</option>
+                  </select>
+              </div>
+              <div class="col-md-3 col-sm-6">
+                  <label class="form-label text-secondary small fw-bold">Filter by Stadium</label>
+                  <select class="form-select" id="stadiumFilter" style="background: rgba(255,255,255,0.05); color:#fff; border: 1px solid #333; border-radius: 10px; padding: 7px 14px;">
+                      <option value="" style="background:#111;">All Stadiums</option>
+                      <option value="Wankhede" style="background:#111;">Wankhede Stadium</option>
+                      <option value="Chinnaswamy" style="background:#111;">M. Chinnaswamy Stadium</option>
+                      <option value="Jaitley" style="background:#111;">Arun Jaitley Stadium</option>
+                      <option value="Mansingh" style="background:#111;">Sawai Mansingh Stadium</option>
+                      <option value="PCA" style="background:#111;">PCA Stadium, Mohali</option>
+                      <option value="Eden" style="background:#111;">Eden Gardens</option>
+                      <option value="Modi" style="background:#111;">Narendra Modi Stadium</option>
+                      <option value="Chidambaram" style="background:#111;">M. A. Chidambaram Stadium</option>
+                      <option value="Rajiv" style="background:#111;">Rajiv Gandhi Stadium</option>
+                  </select>
+              </div>
+              <div class="col-md-3 col-sm-6">
+                  <label class="form-label text-secondary small fw-bold">Match Date</label>
+                  <input class="form-control" type="date" id="dateFilter" style="background: rgba(255,255,255,0.05); color:#fff; border: 1px solid #333; border-radius: 10px;">
+              </div>
+              <div class="col-md-3 col-sm-6">
+                  <label class="form-label text-secondary small fw-bold">Max Price</label>
+                  <select class="form-select" id="priceFilter" style="background: rgba(255,255,255,0.05); color:#fff; border: 1px solid #333; border-radius: 10px; padding: 7px 14px;">
+                      <option value="" style="background:#111;">All Prices</option>
+                      <option value="1200" style="background:#111;">Max ₹1200</option>
+                      <option value="1800" style="background:#111;">Max ₹1800</option>
+                      <option value="2500" style="background:#111;">Max ₹2500</option>
+                  </select>
+              </div>
+              <div class="col-md-3 col-sm-6">
+                  <label class="form-label text-secondary small fw-bold">Sort Matches</label>
+                  <select class="form-select" id="sortFilter" style="background: rgba(255,255,255,0.05); color:#fff; border: 1px solid #333; border-radius: 10px; padding: 7px 14px;">
+                      <option value="" style="background:#111;">Default</option>
+                      <option value="date-asc" style="background:#111;">Soonest</option>
+                      <option value="price-asc" style="background:#111;">Price: Low to High</option>
+                      <option value="price-desc" style="background:#111;">Price: High to Low</option>
+                      <option value="popularity" style="background:#111;">Popularity</option>
+                  </select>
+              </div>
+              <div class="col-md-3 col-sm-6 d-flex align-items-end">
+                  <button class="btn btn-outline-danger w-100 fw-bold" onclick="resetAllFilters()" style="border-radius: 10px; border-color: rgba(229, 9, 20, 0.4);"><i class="bi bi-arrow-counterclockwise"></i> Reset Filters</button>
+              </div>
+          </div>
+      </div>
   </div>
 
   <div class="container my-5">

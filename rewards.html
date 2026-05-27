@@ -155,11 +155,41 @@
     <div class="hero-section">
         <div class="container">
             <h1 class="hero-title">Exclusive Rewards</h1>
-            <p class="lead text-secondary">Unlock premium offers, bank discounts, and scratch cards for your next booking.</p>
+            <p class="lead text-secondary">Unlock premium offers, bank discounts, and redeem points for your next booking.</p>
+            
+            <!-- User Rewards Dashboard -->
+            <div class="card mx-auto mt-4 p-4 text-start" style="max-width: 600px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(0, 242, 254, 0.2); border-radius: 16px;">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div>
+                        <h4 class="mb-0 text-white" id="userDisplayName">Welcome, Member!</h4>
+                        <span class="badge bg-info text-dark" id="tierBadge" style="font-size: 0.9rem; margin-top: 5px;">Silver Tier</span>
+                    </div>
+                    <div class="text-end">
+                        <small class="text-secondary d-block">Current Points</small>
+                        <h2 class="mb-0 fw-bold" style="color: #00f2fe;" id="currentPointsText">150 pts</h2>
+                    </div>
+                </div>
+                <div class="progress-container mb-2">
+                    <div class="d-flex justify-content-between text-secondary mb-1" style="font-size: 0.8rem;">
+                        <span id="prevTierText">Bronze (0 pts)</span>
+                        <span id="nextTierText">Silver (300 pts)</span>
+                    </div>
+                    <div class="progress" style="height: 10px; background: rgba(255, 255, 255, 0.1); border-radius: 5px;">
+                        <div class="progress-bar" id="tierProgressBar" role="progressbar" style="width: 50%; background: linear-gradient(90deg, #00f2fe, #4facfe); border-radius: 5px;" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                </div>
+                <small class="text-secondary" id="progressLabelText">Earn points on every booking! +50 points per ticket booking completed.</small>
+            </div>
         </div>
     </div>
 
     <div class="container mb-5">
+        <h3 class="text-white mb-4 border-bottom border-secondary pb-2">Redeemable Coupons</h3>
+        <div class="row g-4 mb-5" id="redeemableCouponsContainer">
+            <!-- Dynamically generated coupon cards -->
+        </div>
+
+        <h3 class="text-white mb-4 border-bottom border-secondary pb-2">Bank & General Offers</h3>
         <div class="row g-4">
             <!-- Offer 1 -->
             <div class="col-md-4">
@@ -220,6 +250,151 @@
     <div class="copy-toast" id="toast">Code Copied!</div>
 
     <script>
+        // Sample coupons database
+        const couponData = [
+            { code: "FIRSTBOOKING", title: "First Booking Coupon", desc: "Flat ₹100 Off on your first order. Minimum amount ₹500.", cost: 0, icon: "bi-star-fill" },
+            { code: "WEEKEND20", title: "Weekend Special", desc: "Get 20% Off on Saturday & Sunday bookings. Max ₹300.", cost: 100, icon: "bi-calendar-range" },
+            { code: "MOVIE50", title: "Movie Buff Special", desc: "Flat ₹50 Off on any blockbuster movie. No min value.", cost: 75, icon: "bi-film" },
+            { code: "CONCERT10", title: "Concert Lover", desc: "Flat 10% Off on live concert tickets.", cost: 80, icon: "bi-music-note-beamed" }
+        ];
+
+        document.addEventListener("DOMContentLoaded", () => {
+            // Load Points
+            let points = localStorage.getItem("rewardPoints");
+            if (points === null) {
+                points = 150; // Initial default points
+                localStorage.setItem("rewardPoints", points);
+            } else {
+                points = parseInt(points);
+            }
+
+            // Load Unlocked Coupons
+            let unlocked = JSON.parse(localStorage.getItem("unlockedCoupons"));
+            if (unlocked === null) {
+                unlocked = ["FIRSTBOOKING"]; // Firstbooking unlocked by default
+                localStorage.setItem("unlockedCoupons", JSON.stringify(unlocked));
+            }
+
+            // Load User Profile Name
+            const loggedInEmail = localStorage.getItem("loggedInUser");
+            let username = localStorage.getItem("username");
+            if (loggedInEmail && !username) {
+                username = loggedInEmail.split("@")[0];
+            }
+            if (username) {
+                document.getElementById("userDisplayName").innerText = `Welcome, ${username}!`;
+            }
+
+            updateDashboard(points);
+            renderCoupons(points, unlocked);
+        });
+
+        function updateDashboard(points) {
+            document.getElementById("currentPointsText").innerText = `${points} pts`;
+            
+            let tier = "Bronze";
+            let tierClass = "bg-secondary text-white";
+            let prevTier = 0;
+            let nextTier = 300;
+            let nextTierName = "Silver";
+
+            if (points >= 600) {
+                tier = "Platinum";
+                tierClass = "bg-danger text-white";
+                prevTier = 600;
+                nextTier = 1200;
+                nextTierName = "Legend";
+            } else if (points >= 300) {
+                tier = "Gold";
+                tierClass = "bg-warning text-dark";
+                prevTier = 300;
+                nextTier = 600;
+                nextTierName = "Platinum";
+            } else if (points >= 100) {
+                tier = "Silver";
+                tierClass = "bg-info text-dark";
+                prevTier = 100;
+                nextTier = 300;
+                nextTierName = "Gold";
+            }
+
+            const tierBadge = document.getElementById("tierBadge");
+            tierBadge.innerText = `${tier} Tier`;
+            tierBadge.className = `badge ${tierClass}`;
+
+            document.getElementById("prevTierText").innerText = `${tier} (${prevTier} pts)`;
+            document.getElementById("nextTierText").innerText = `${nextTierName} (${nextTier} pts)`;
+
+            const progressPercent = Math.min(100, Math.max(0, ((points - prevTier) / (nextTier - prevTier)) * 100));
+            document.getElementById("tierProgressBar").style.width = `${progressPercent}%`;
+            document.getElementById("tierProgressBar").setAttribute("aria-valuenow", progressPercent);
+        }
+
+        function renderCoupons(points, unlocked) {
+            const container = document.getElementById("redeemableCouponsContainer");
+            container.innerHTML = "";
+
+            couponData.forEach(coupon => {
+                const isUnlocked = unlocked.includes(coupon.code);
+                let btnHTML = "";
+                let cardStyle = "";
+
+                if (isUnlocked) {
+                    btnHTML = `<button class="btn btn-outline-light w-100 fw-bold" onclick="copyCode('${coupon.code}')">
+                                 <i class="bi bi-files me-2"></i>Copy Code: ${coupon.code}
+                               </button>`;
+                    cardStyle = "border-color: rgba(46, 204, 113, 0.4); background: rgba(46, 204, 113, 0.03);";
+                } else {
+                    const canAfford = points >= coupon.cost;
+                    const btnClass = canAfford ? "btn-warning" : "btn-secondary disabled";
+                    btnHTML = `<button class="btn ${btnClass} w-100 fw-bold" onclick="redeemCoupon('${coupon.code}', ${coupon.cost})" ${canAfford ? '' : 'disabled'}>
+                                 Redeem ${coupon.cost} pts to Unlock
+                               </button>`;
+                    cardStyle = "border-color: rgba(255, 255, 255, 0.1);";
+                }
+
+                container.innerHTML += `
+                    <div class="col-md-6 col-lg-3">
+                        <div class="card h-100 text-start p-3" style="${cardStyle} border-style: dashed; border-width: 1px; border-radius: 12px; background: rgba(255,255,255,0.02);">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="badge bg-dark border border-secondary text-secondary p-2" style="font-size: 0.75rem;">
+                                    ${isUnlocked ? '🔓 UNLOCKED' : '🔒 LOCKED'}
+                                </span>
+                                <i class="bi ${coupon.icon} fs-4 text-warning"></i>
+                            </div>
+                            <h5 class="text-white fw-bold mb-1">${coupon.title}</h5>
+                            <p class="text-secondary small mb-3 flex-grow-1">${coupon.desc}</p>
+                            ${btnHTML}
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function redeemCoupon(code, cost) {
+            let points = parseInt(localStorage.getItem("rewardPoints") || 0);
+            if (points < cost) {
+                alert("Insufficient reward points!");
+                return;
+            }
+
+            if (confirm(`Are you sure you want to redeem ${cost} points to unlock ${code}?`)) {
+                points -= cost;
+                localStorage.setItem("rewardPoints", points);
+
+                let unlocked = JSON.parse(localStorage.getItem("unlockedCoupons")) || [];
+                if (!unlocked.includes(code)) {
+                    unlocked.push(code);
+                    localStorage.setItem("unlockedCoupons", JSON.stringify(unlocked));
+                }
+
+                updateDashboard(points);
+                renderCoupons(points, unlocked);
+
+                alert(`Coupon ${code} has been successfully unlocked! You can now use it on the checkout page.`);
+            }
+        }
+
         function copyCode(code) {
             navigator.clipboard.writeText(code).then(() => {
                 const toast = document.getElementById("toast");

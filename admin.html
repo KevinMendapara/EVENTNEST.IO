@@ -12,6 +12,8 @@
     <!-- Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase_config.js"></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
@@ -76,24 +78,45 @@
         <section id="dashboard" class="section active">
             <div class="dashboard-grid">
                 <div class="stat-card">
-                    <i class="fas fa-rupee-sign stat-icon"></i>
-                    <h3 class="stat-title">Total Revenue</h3>
-                    <p class="stat-value">₹4.2M</p>
+                    <i class="fas fa-ticket-alt stat-icon"></i>
+                    <h3 class="stat-title">Total Bookings</h3>
+                    <p class="stat-value" id="stat-bookings">0</p>
                 </div>
                 <div class="stat-card">
-                    <i class="fas fa-ticket-alt stat-icon"></i>
-                    <h3 class="stat-title">Tickets Sold</h3>
-                    <p class="stat-value">12,450</p>
+                    <i class="fas fa-rupee-sign stat-icon"></i>
+                    <h3 class="stat-title">Total Revenue</h3>
+                    <p class="stat-value" id="stat-revenue">₹0</p>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-calendar-check stat-icon"></i>
+                    <h3 class="stat-title">Active Events</h3>
+                    <p class="stat-value" id="stat-events">0</p>
                 </div>
                 <div class="stat-card">
                     <i class="fas fa-users stat-icon"></i>
                     <h3 class="stat-title">Active Users</h3>
-                    <p class="stat-value">8,920</p>
+                    <p class="stat-value" id="stat-users">0</p>
                 </div>
                 <div class="stat-card">
-                    <i class="fas fa-calendar-check stat-icon"></i>
-                    <h3 class="stat-title">Upcoming Events</h3>
-                    <p class="stat-value">24</p>
+                    <i class="fas fa-ban stat-icon"></i>
+                    <h3 class="stat-title">Cancelled Tickets</h3>
+                    <p class="stat-value" id="stat-cancelled">0</p>
+                </div>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="charts-container">
+                <div class="chart-card">
+                    <h3>Category-wise Bookings</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="categoryChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <h3>Revenue Trends</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="revenueChart"></canvas>
+                    </div>
                 </div>
             </div>
 
@@ -186,6 +209,7 @@
                             <th>Seats</th>
                             <th>Date</th>
                             <th>Status</th>
+                            <th>Action</th>
                         </tr>
                     </thead>
                     <tbody id="bookings-table-body">

@@ -1,22 +1,9 @@
-let generatedOTP = "";
-
-// SWITCH FORMS
-function showRegister() {
-  document.getElementById("loginForm").classList.remove("active");
-  document.getElementById("otpForm").classList.remove("active");
-  document.getElementById("registerForm").classList.add("active");
-}
-
-function showLogin() {
-  document.getElementById("registerForm").classList.remove("active");
-  document.getElementById("otpForm").classList.remove("active");
-  document.getElementById("loginForm").classList.add("active");
-}
-
 // SHOW PASSWORD
 function togglePassword(id) {
   let input = document.getElementById(id);
-  input.type = input.type === "password" ? "text" : "password";
+  if (input) {
+    input.type = input.type === "password" ? "text" : "password";
+  }
 }
 
 // EMAIL VALIDATION
@@ -24,78 +11,32 @@ function isValidEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
-// PASSWORD STRENGTH
-document.getElementById("password").addEventListener("input", function () {
-  let pass = this.value;
-  let bar = document.getElementById("strengthBar");
+// FORGOT PASSWORD TOGGLE
+function showForgotPassword() {
+  document.getElementById("loginForm").classList.remove("active");
+  document.getElementById("forgotForm").classList.add("active");
+}
 
-  if (pass.length < 6) {
-    bar.style.width = "30%";
-    bar.style.background = "red";
-  } else if (pass.length < 10) {
-    bar.style.width = "60%";
-    bar.style.background = "orange";
-  } else {
-    bar.style.width = "100%";
-    bar.style.background = "green";
-  }
-});
+function showLoginFormFromForgot() {
+  document.getElementById("forgotForm").classList.remove("active");
+  document.getElementById("resetSuccess").classList.remove("active");
+  document.getElementById("loginForm").classList.add("active");
+}
 
-// REGISTER
-document.getElementById("registerForm").addEventListener("submit", function (e) {
+// FORGOT PASSWORD SUBMIT
+document.getElementById("forgotForm").addEventListener("submit", function (e) {
   e.preventDefault();
-
-  let name = document.getElementById("name").value.trim();
-  let email = document.getElementById("email").value.trim().toLowerCase();
-  let age = Number(document.getElementById("age").value);
-  let password = document.getElementById("password").value.trim();
-
-  if (!isValidEmail(email)) return alert("Invalid Email");
-
-  // Store temporary user info in localStorage for OTP verification step
-  localStorage.setItem("temp_user", JSON.stringify({ name, email, age, password }));
-
-  // GENERATE OTP
-  generatedOTP = Math.floor(1000 + Math.random() * 9000).toString();
-  alert("Your OTP is: " + generatedOTP); // demo purpose
-
-  document.getElementById("registerForm").classList.remove("active");
-  document.getElementById("otpForm").classList.add("active");
-});
-
-// OTP VERIFY
-document.getElementById("otpForm").addEventListener("submit", function (e) {
-  e.preventDefault();
-
-  let otp = document.getElementById("otpInput").value;
-
-  if (otp === generatedOTP) {
-    let tempUser = JSON.parse(localStorage.getItem("temp_user"));
-    
-    // Save to Supabase (if configured), else LocalStorage
-    if (typeof supabaseClient !== 'undefined' && !SUPABASE_URL.includes('YOUR-PROJECT-ID')) {
-        supabaseClient.from('users').insert([tempUser]).then(({data, error}) => {
-            if (error) {
-                alert("Error saving to cloud database: " + error.message);
-            } else {
-                alert("Account Created in Cloud Database!");
-                localStorage.setItem("user", JSON.stringify(tempUser));
-                localStorage.removeItem("temp_user");
-                showLogin();
-            }
-        });
-    } else {
-        localStorage.setItem("user", JSON.stringify(tempUser));
-        localStorage.removeItem("temp_user");
-        alert("Account Created (Saved to Local Storage)!");
-        showLogin();
-    }
-  } else {
-    alert("Wrong OTP");
+  let email = document.getElementById("forgotEmail").value.trim();
+  if (!isValidEmail(email)) {
+    alert("Please enter a valid email address.");
+    return;
   }
+  document.getElementById("resetEmailSpan").textContent = email;
+  document.getElementById("forgotForm").classList.remove("active");
+  document.getElementById("resetSuccess").classList.add("active");
 });
 
-// LOGIN
+// LOGIN SUBMIT
 document.getElementById("loginForm").addEventListener("submit", function (e) {
   e.preventDefault();
 
@@ -135,7 +76,14 @@ document.getElementById("loginForm").addEventListener("submit", function (e) {
       localStorage.setItem("loggedInUser", email);
       localStorage.setItem("userProfile", JSON.stringify(userObj));
       alert("Login Success!");
-      window.location.href = "index.html";
+      
+      let redirectUrl = localStorage.getItem("loginRedirectUrl");
+      if (redirectUrl) {
+          localStorage.removeItem("loginRedirectUrl");
+          window.location.href = redirectUrl;
+      } else {
+          window.location.href = "index.html";
+      }
   }
 });
 
@@ -171,15 +119,6 @@ window.onload = function () {
         { theme: "filled_black", size: "large", type: "standard", shape: "rectangular", width: 182 }
       );
     }
-
-    // Render for Sign Up Form
-    const registerBtn = document.getElementById("g_id_signin_register");
-    if (registerBtn) {
-      google.accounts.id.renderButton(
-        registerBtn,
-        { theme: "filled_black", size: "large", type: "standard", shape: "rectangular", width: 182 }
-      );
-    }
   } else {
     console.warn("Google SDK failed to load.");
   }
@@ -211,7 +150,14 @@ function handleGoogleCredentialResponse(response) {
     localStorage.setItem("userProfile", JSON.stringify({ name, email, picture, provider: "Google" }));
 
     alert(`Successfully authenticated with Google!\nWelcome ${name}`);
-    window.location.href = "index.html";
+    
+    let redirectUrl = localStorage.getItem("loginRedirectUrl");
+    if (redirectUrl) {
+        localStorage.removeItem("loginRedirectUrl");
+        window.location.href = redirectUrl;
+    } else {
+        window.location.href = "index.html";
+    }
   }
 }
 
@@ -224,7 +170,6 @@ async function handleAppleLogin() {
     
     if (decodedToken) {
       const email = decodedToken.email;
-      // Apple only provides the 'user' object with name on the FIRST ever login.
       let name = "Apple User"; 
       
       if (response.user && response.user.name) {
@@ -237,7 +182,14 @@ async function handleAppleLogin() {
       localStorage.setItem("userProfile", JSON.stringify({ name, email, provider: "Apple" }));
 
       alert(`Successfully authenticated with Apple!\nWelcome ${name}`);
-      window.location.href = "index.html";
+      
+      let redirectUrl = localStorage.getItem("loginRedirectUrl");
+      if (redirectUrl) {
+          localStorage.removeItem("loginRedirectUrl");
+          window.location.href = redirectUrl;
+      } else {
+          window.location.href = "index.html";
+      }
     }
   } catch (error) {
     console.error("Apple Sign-In Error:", error);

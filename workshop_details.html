@@ -9,6 +9,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    <script src="api_config.js"></script>
     <style>
         body {
             background-color: #0a0a0a;
@@ -183,6 +184,23 @@
                 <div class="badge-category" id="catBadge">Category</div>
                 <h1 id="eventTitle">Event Title</h1>
                 <p class="text-light fs-5">A hands-on, creative experience led by a master of the craft.</p>
+                
+                <!-- Weather Widget (Outdoor Event) -->
+                <div id="weatherWidget" class="d-none mt-3 p-3 rounded-3" style="background: rgba(0, 0, 0, 0.55); border: 1px solid rgba(255, 255, 255, 0.1); backdrop-filter: blur(5px); max-width: 320px;">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div class="d-flex align-items-center gap-2">
+                            <img id="weatherIcon" src="" alt="Weather" style="width: 40px; height: 40px; display: none;">
+                            <div>
+                                <span class="text-white fw-bold d-block" id="weatherTemp">--°C</span>
+                                <small class="text-light opacity-75" id="weatherDesc">Loading forecast...</small>
+                            </div>
+                        </div>
+                        <div class="text-end" style="font-size: 0.75rem; color: #ccc;">
+                            <span class="d-block"><i class="bi bi-droplet-fill text-info"></i> Hum: <strong class="text-white" id="weatherHumidity">--%</strong></span>
+                            <span><i class="bi bi-wind text-light"></i> Wind: <strong class="text-white" id="weatherWind">-- m/s</strong></span>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="col-md-4">
                 <div class="booking-card">
@@ -234,6 +252,18 @@
         <p class="text-secondary" style="line-height: 1.8; font-size: 1.1rem;">
             Dive deep into the creative process with this hands-on workshop. You will learn fundamental techniques, explore advanced concepts, and build something entirely your own. No matter your current skill level, our expert instructor will guide you step-by-step in a collaborative, inspiring environment. All necessary materials and tools will be provided. Come ready to learn, create, and have fun!
         </p>
+
+        <!-- Map Section -->
+        <div class="mt-5 p-4 rounded-4" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 10px 30px rgba(0,0,0,0.5);" id="mapSection">
+            <h4 class="text-white fw-bold mb-3"><i class="bi bi-map-fill me-2" style="color: #f5576c;"></i>Venue Location</h4>
+            <div class="ratio ratio-16x9 rounded-3 overflow-hidden mb-3" style="border: 1px solid rgba(255, 255, 255, 0.1); height: 300px;">
+                <iframe id="mapIframe" src="" allowfullscreen loading="lazy" style="border: 0;"></iframe>
+            </div>
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <span class="text-secondary" id="mapAddressText">Loading address...</span>
+                <a href="" target="_blank" id="directionsLink" class="btn btn-primary btn-sm rounded-pill px-3 fw-bold" style="background: linear-gradient(45deg, #f093fb, #f5576c); border:none; color:#fff; box-shadow: 0 4px 10px rgba(245, 87, 108, 0.4);"><i class="bi bi-geo me-1"></i> Get Directions</a>
+            </div>
+        </div>
 
         <!-- Reviews Section -->
         <div class="reviews-section">
@@ -298,6 +328,61 @@
             instructorImg.src = eventData.instructorImg || 'images/av_don.jpg';
             document.getElementById("instructorName").innerText = eventData.instructor;
             document.getElementById("instructorRole").innerText = eventData.instructorRole;
+
+            // Load Google Maps Embed or free Search Embed fallback
+            const query = (eventData.venue ? eventData.venue + ", " : "") + (eventData.city || "");
+            document.getElementById("mapAddressText").innerText = query;
+            const mapIframe = document.getElementById("mapIframe");
+            const directionsLink = document.getElementById("directionsLink");
+            
+            if (window.API_CONFIG && API_CONFIG.GOOGLE_MAPS_API_KEY) {
+                mapIframe.src = `https://www.google.com/maps/embed/v1/place?key=${API_CONFIG.GOOGLE_MAPS_API_KEY}&q=${encodeURIComponent(query)}`;
+            } else {
+                mapIframe.src = `https://maps.google.com/maps?q=${encodeURIComponent(query)}&t=&z=14&ie=UTF8&iwloc=&output=embed`;
+            }
+            directionsLink.href = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(query)}`;
+
+            // Load OpenWeatherMap forecast
+            const weatherWidget = document.getElementById("weatherWidget");
+            const weatherTemp = document.getElementById("weatherTemp");
+            const weatherDesc = document.getElementById("weatherDesc");
+            const weatherIcon = document.getElementById("weatherIcon");
+            const weatherHumidity = document.getElementById("weatherHumidity");
+            const weatherWind = document.getElementById("weatherWind");
+
+            const hasWeatherProxy = window.API_CONFIG && !!API_CONFIG.BACKEND_API_URL;
+            const hasWeatherDirect = window.API_CONFIG && !!API_CONFIG.OPENWEATHERMAP_API_KEY;
+            if ((hasWeatherProxy || hasWeatherDirect) && eventData.city) {
+                const weatherUrl = hasWeatherProxy
+                    ? `${API_CONFIG.BACKEND_API_URL}/api/weather?city=${encodeURIComponent(eventData.city)}`
+                    : `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(eventData.city)}&units=metric&appid=${API_CONFIG.OPENWEATHERMAP_API_KEY}`;
+                fetch(weatherUrl)
+                    .then(res => {
+                        if (!res.ok) throw new Error("Weather api response error");
+                        return res.json();
+                    })
+                    .then(wdata => {
+                        if (wdata && wdata.main) {
+                            weatherTemp.innerText = `${Math.round(wdata.main.temp)}°C`;
+                            if (wdata.weather && wdata.weather[0]) {
+                                weatherDesc.innerText = wdata.weather[0].description;
+                                weatherIcon.src = `https://openweathermap.org/img/wn/${wdata.weather[0].icon}@2x.png`;
+                                weatherIcon.style.display = "block";
+                            }
+                            weatherHumidity.innerText = `${wdata.main.humidity}%`;
+                            weatherWind.innerText = `${wdata.wind.speed} m/s`;
+                            weatherWidget.classList.remove("d-none");
+                        }
+                    })
+                    .catch(err => {
+                        console.warn("Failed to load weather from OpenWeatherMap:", err);
+                        weatherDesc.innerText = "Weather unavailable";
+                        weatherWidget.classList.remove("d-none");
+                    });
+            } else {
+                weatherDesc.innerText = "Weather forecast unavailable (check key)";
+                weatherWidget.classList.remove("d-none");
+            }
         }
 
         function proceedToPayment() {

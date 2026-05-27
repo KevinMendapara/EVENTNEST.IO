@@ -571,3 +571,25 @@ footer {
 ::-webkit-scrollbar-thumb:hover {
     background: #555;
 }
+
+/* ================= CURSOR GLOW EFFECT ================= */
+.cursor-glow {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 350px;
+    height: 350px;
+    background: radial-gradient(circle, rgba(229, 9, 20, 0.12) 0%, rgba(229, 9, 20, 0.03) 45%, rgba(0,0,0,0) 70%);
+    border-radius: 50%;
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+    transition: width 0.2s, height 0.2s;
+    mix-blend-mode: screen;
+}
+
+@media (hover: none) {
+    .cursor-glow {
+        display: none !important;
+    }
+}

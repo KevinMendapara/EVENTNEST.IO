@@ -1,82 +1,216 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta name="referrer" content="no-referrer-when-downgrade">
-  <title>Concerts</title>
-  
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="concert.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Concerts | EventNest</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="concert.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Oswald:wght@700&display=swap');
+        
+        body {
+            background-color: #0b0713; /* deep dark purple atmosphere */
+            color: #ffffff;
+            font-family: 'DM Sans', sans-serif;
+            margin: 0;
+            padding-top: 80px;
+            overflow-x: hidden;
+        }
+
+        /* Navbar */
+        .navbar {
+            background: rgba(11, 7, 19, 0.85) !important;
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(177, 34, 229, 0.15);
+            padding: 15px 30px;
+        }
+        
+        /* Hero Section */
+        .concert-hero {
+            position: relative;
+            height: 40vh;
+            min-height: 280px;
+            background: linear-gradient(rgba(11, 7, 19, 0.4), #0b0713), url('images/c_hero.jpg') center/cover no-repeat;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            border-bottom: 2px solid #b122e5;
+            box-shadow: 0 10px 40px rgba(177, 34, 229, 0.2);
+            margin-bottom: 40px;
+        }
+
+        .hero-title {
+            font-family: 'Oswald', sans-serif;
+            font-size: 3.5rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 20px rgba(177, 34, 229, 0.6);
+            color: #fff;
+        }
+
+        /* Scoreboard Panel */
+        .scoreboard-filters {
+            background: #120b22;
+            border: 1px solid rgba(177, 34, 229, 0.25);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6), 0 0 25px rgba(177, 34, 229, 0.1);
+        }
+
+        .scoreboard-filters label {
+            color: #d1bdfa;
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+        }
+
+        .scoreboard-filters .form-control, .scoreboard-filters .form-select {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(177, 34, 229, 0.2);
+            color: #fff;
+            border-radius: 8px;
+            transition: all 0.25s ease;
+        }
+
+        .scoreboard-filters .form-control:focus, .scoreboard-filters .form-select:focus {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: #b122e5;
+            box-shadow: 0 0 12px rgba(177, 34, 229, 0.3);
+            color: #fff;
+        }
+
+        .scoreboard-filters .form-select option {
+            background: #120b22;
+            color: #fff;
+        }
+
+        .btn-reset-filters {
+            background: transparent;
+            border: 1px solid rgba(177, 34, 229, 0.4);
+            color: #d1bdfa;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-reset-filters:hover {
+            background: rgba(177, 34, 229, 0.15);
+            color: #fff;
+            border-color: #b122e5;
+        }
+    </style>
 </head>
 <body>
 
-  <!-- Navbar -->
-  <nav class="navbar navbar-expand-lg navbar-dark fixed-top" style="background: rgba(0,0,0,0.8) !important; backdrop-filter: blur(10px);">
-      <div class="container-fluid px-4">
-          <a class="navbar-brand fw-bold" href="index.html">Event<span style="color:#fff">Nest</span></a>
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menu">
-              <span class="navbar-toggler-icon"></span>
-          </button>
-          <div class="collapse navbar-collapse" id="menu">
-              <div class="d-flex align-items-center ms-auto gap-3">
-                  <!-- SEARCH BAR -->
-                  <div class="d-flex">
-                      <input class="form-control" type="search" placeholder="Search Singer..." id="search">
-                  </div>
-                  <!-- CITY SELECT -->
-                  <select class="form-select" style="width:150px;" id="cityFilter">
-                      <option value="">All Cities</option>
-                      <option>Mumbai</option>
-                      <option>Delhi</option>
-                      <option>Bangalore</option>
-                  </select>
-                  <!-- MONTH SELECT -->
-                  <select class="form-select" style="width:150px;" id="monthFilter">
-                      <option value="">All Months</option>
-                      <option>March</option>
-                      <option>April</option>
-                      <option>May</option>
-                      <option>June</option>
-                  </select>
-                  <ul class="navbar-nav ms-auto">
-                      <li class="nav-item"><a href="index.html" class="nav-link">Home</a></li>
-                      <li class="nav-item"><a href="concerts.html" class="nav-link active">Events</a></li>
-                  </ul>
-              </div>
-          </div>
-      </div>
-  </nav>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+        <div class="container-fluid px-4">
+            <a class="navbar-brand fw-bold" href="index.html">Event<span style="color:#b122e5">Nest</span></a>
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#menu">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="menu">
+                <ul class="navbar-nav ms-auto align-items-center gap-3">
+                    <li class="nav-item"><a href="index.html" class="nav-link text-white-50">Home</a></li>
+                    <li class="nav-item"><a href="concerts.html" class="nav-link active" style="color:#b122e5;">Concerts</a></li>
+                    <li class="nav-item"><a href="movies.html" class="nav-link text-white-50">Movies</a></li>
+                    <li class="nav-item"><a href="cricket.html" class="nav-link text-white-50">Cricket</a></li>
+                    
+                    <!-- Auth Dropdown -->
+                    <li class="nav-item dropdown" id="profileDropdownContainer">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center gap-2" href="#" id="profileDropdown"
+                            role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-person-circle fs-5" style="color:#b122e5;"></i>
+                            <span id="navbarUsername">Profile</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark" aria-labelledby="profileDropdown" style="background:#120b22; border:1px solid rgba(177,34,229,0.2);">
+                            <li id="loginOption">
+                                <a class="dropdown-item" href="login.html" onclick="localStorage.setItem('loginRedirectUrl', window.location.href)"><i class="bi bi-box-arrow-in-right me-2 text-info"></i>Login</a>
+                            </li>
+                            <li id="ticketsOption" class="d-none">
+                                <a class="dropdown-item" href="my_tickets.html"><i class="bi bi-ticket-perforated me-2 text-warning"></i>My Tickets</a>
+                            </li>
+                            <li id="logoutOption" class="d-none">
+                                <a class="dropdown-item text-danger" href="#" onclick="logoutUser()"><i class="bi bi-box-arrow-right me-2"></i>Logout</a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
 
-  <!-- Hero Section -->
-  <header class="concert-hero"></header>
+    <!-- Hero -->
+    <header class="concert-hero">
+        <h1 class="hero-title">Live Concert Arena</h1>
+    </header>
 
-  <style>
-      .concert-hero {
-          position: relative;
-          height: 45vh;
-          min-height: 300px;
-          background: url('images/c_hero.jpg') center/cover no-repeat;
-          margin-top: 76px; /* offset fixed navbar */
-          margin-bottom: 40px;
-          border-bottom: 2px solid var(--netflix-red, #e50914);
-          box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-      }
-      @media (max-width: 768px) {
-          .concert-hero {
-              height: 30vh;
-              min-height: 200px;
-              margin-top: 56px;
-          }
-      }
-  </style>
+    <!-- Scoreboard Filters Panel -->
+    <div class="container mt-4 mb-5">
+        <div class="p-4 rounded-4 scoreboard-filters">
+            <h5 class="text-white fw-bold mb-3 d-flex align-items-center">
+                <i class="bi bi-sliders text-danger me-2" style="color:#b122e5 !important;"></i> MATCH DAY MUSIC FILTERS
+            </h5>
+            <div class="row g-3">
+                <div class="col-md-3 col-sm-6">
+                    <label class="form-label fw-bold text-uppercase">Search Artist</label>
+                    <input class="form-control" type="search" placeholder="Arijit, Neha, Badshah..." id="search">
+                </div>
+                <div class="col-md-2 col-sm-6">
+                    <label class="form-label fw-bold text-uppercase">City</label>
+                    <select class="form-select" id="cityFilter">
+                        <option value="">All Cities</option>
+                        <option>Mumbai</option>
+                        <option>Delhi</option>
+                        <option>Bangalore</option>
+                    </select>
+                </div>
+                <div class="col-md-2 col-sm-6">
+                    <label class="form-label fw-bold text-uppercase">Month</label>
+                    <select class="form-select" id="monthFilter">
+                        <option value="">All Months</option>
+                        <option>March</option>
+                        <option>April</option>
+                        <option>May</option>
+                        <option>June</option>
+                    </select>
+                </div>
+                <div class="col-md-2 col-sm-6">
+                    <label class="form-label fw-bold text-uppercase">Max Price</label>
+                    <select class="form-select" id="priceFilter">
+                        <option value="">All Prices</option>
+                        <option value="500">Max ₹500</option>
+                        <option value="700">Max ₹700</option>
+                        <option value="1000">Max ₹1000</option>
+                    </select>
+                </div>
+                <div class="col-md-2 col-sm-6">
+                    <label class="form-label fw-bold text-uppercase">Sort By</label>
+                    <select class="form-select" id="sortFilter">
+                        <option value="">Sort By</option>
+                        <option value="price-asc">Price: Low to High</option>
+                        <option value="price-desc">Price: High to Low</option>
+                        <option value="popularity-desc">Popularity</option>
+                        <option value="date-asc">Date (Earliest)</option>
+                    </select>
+                </div>
+                <div class="col-md-1 d-flex align-items-end">
+                    <button class="btn btn-reset-filters w-100 py-2 fw-bold" onclick="resetConcertFilters()" title="Reset Filters"><i class="bi bi-arrow-counterclockwise"></i></button>
+                </div>
+            </div>
+        </div>
 
-  <div class="container mb-5">
-    <h2 class="fw-bold text-white mb-4 border-bottom border-danger pb-2 d-inline-block">Trending Artists</h2>
-    <div id="concertList" class="grid mt-2"></div>
-  </div>
+        <h2 class="fw-bold text-white mb-4 border-bottom pb-2 d-inline-block" style="border-color: rgba(177, 34, 229, 0.4) !important;">Trending Tours</h2>
+        
+        <div id="concertList" class="d-flex flex-column gap-4">
+            <!-- Loaded dynamically via JavaScript -->
+        </div>
+    </div>
 
-  <script src="concerts.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Script & Bootstrap Bundle -->
+    <script src="concerts.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

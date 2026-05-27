@@ -211,6 +211,39 @@
         </div>
     </header>
 
+    <div class="container mb-4">
+        <div class="row g-3 justify-content-center" style="background: rgba(255,255,255,0.03); padding: 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 20px;">
+            <div class="col-md-3">
+                <input type="text" class="form-control" placeholder="Search by name, topic..." id="search" style="border-radius: 20px; padding: 10px 15px; font-size: 0.9rem; background-color: #222; color: #fff; border: 1px solid #444;">
+            </div>
+            <div class="col-md-3">
+                <select class="form-select" id="cityFilter" style="border-radius: 20px; padding: 10px 15px; font-size: 0.9rem; background-color: #222; color: #fff; border-color: #444;">
+                    <option value="">All Cities</option>
+                    <option value="Ahmedabad">Ahmedabad</option>
+                    <option value="Mumbai">Mumbai</option>
+                    <option value="Kolkata">Kolkata</option>
+                    <option value="Pune">Pune</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select class="form-select" id="priceFilter" style="border-radius: 20px; padding: 10px 15px; font-size: 0.9rem; background-color: #222; color: #fff; border-color: #444;">
+                    <option value="">All Prices</option>
+                    <option value="1200">Max ₹1200</option>
+                    <option value="1500">Max ₹1500</option>
+                    <option value="2000">Max ₹2000</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select class="form-select" id="sortFilter" style="border-radius: 20px; padding: 10px 15px; font-size: 0.9rem; background-color: #222; color: #fff; border-color: #444;">
+                    <option value="">Sort By</option>
+                    <option value="price-asc">Price: Low to High</option>
+                    <option value="price-desc">Price: High to Low</option>
+                    <option value="date-asc">Soonest</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
     <div class="container mb-5">
         <div class="row g-4" id="workshopsList">
             <!-- Populated by JS -->
@@ -229,7 +262,9 @@
                 image: "images/w_design.jpg",
                 instructor: "Don Norman",
                 instructorRole: "Design Pioneer",
-                instructorImg: "images/av_don.jpg"
+                instructorImg: "images/av_don.jpg",
+                city: "Ahmedabad",
+                dateVal: "2026-11-05"
             },
             {
                 title: "Digital Photography Workshop",
@@ -241,7 +276,9 @@
                 image: "images/w_photo.jpg",
                 instructor: "Ansel Adams",
                 instructorRole: "Pro Photographer",
-                instructorImg: "images/av_ansel.jpg"
+                instructorImg: "images/av_ansel.jpg",
+                city: "Mumbai",
+                dateVal: "2026-11-12"
             },
             {
                 title: "Creative Writing Retreat",
@@ -253,7 +290,9 @@
                 image: "images/w_write.jpg",
                 instructor: "J.K. Rowling",
                 instructorRole: "Bestselling Author",
-                instructorImg: "images/av_jk.jpg"
+                instructorImg: "images/av_jk.jpg",
+                city: "Kolkata",
+                dateVal: "2026-11-20"
             },
             {
                 title: "Pottery & Ceramic Arts",
@@ -265,13 +304,26 @@
                 image: "images/w_pottery.jpg",
                 instructor: "Grayson Perry",
                 instructorRole: "Ceramic Artist",
-                instructorImg: "images/av_grayson.jpg"
+                instructorImg: "images/av_grayson.jpg",
+                city: "Pune",
+                dateVal: "2026-11-25"
             }
         ];
 
-        function renderWorkshops() {
+        function renderWorkshops(data) {
             const container = document.getElementById('workshopsList');
-            container.innerHTML = workshops.map((w, index) => {
+            if (data.length === 0) {
+                container.innerHTML = `
+                <div class="col-12 text-center py-5 text-secondary">
+                    <i class="bi bi-search fs-1 mb-3 d-block"></i>
+                    <h5>No workshops found</h5>
+                    <p class="small">Try adjusting your filters or search keywords.</p>
+                </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = data.map((w, index) => {
                 const safeData = encodeURIComponent(JSON.stringify(w));
                 return `
                 <div class="col-lg-6 col-xl-6">
@@ -315,6 +367,42 @@
                 </div>
                 `;
             }).join('');
+
+            if (typeof VanillaTilt !== 'undefined') {
+                VanillaTilt.init(container.querySelectorAll(".workshop-card"), {
+                    max: 10,
+                    speed: 400,
+                    glare: true,
+                    "max-glare": 0.2,
+                    scale: 1.03
+                });
+            }
+        }
+
+        function filterWorkshops() {
+            const search = document.getElementById('search').value.toLowerCase().trim();
+            const city = document.getElementById('cityFilter').value;
+            const priceMax = document.getElementById('priceFilter').value;
+            const sortBy = document.getElementById('sortFilter').value;
+
+            let result = workshops.filter(w => {
+                const matchSearch = w.title.toLowerCase().includes(search) || 
+                                    w.category.toLowerCase().includes(search) ||
+                                    w.instructor.toLowerCase().includes(search);
+                const matchCity = city === "" || w.city === city;
+                const matchPrice = priceMax === "" || w.price <= Number(priceMax);
+                return matchSearch && matchCity && matchPrice;
+            });
+
+            if (sortBy === "price-asc") {
+                result.sort((a, b) => a.price - b.price);
+            } else if (sortBy === "price-desc") {
+                result.sort((a, b) => b.price - a.price);
+            } else if (sortBy === "date-asc") {
+                result.sort((a, b) => new Date(a.dateVal) - new Date(b.dateVal));
+            }
+
+            renderWorkshops(result);
         }
 
         function viewDetails(dataString) {
@@ -323,8 +411,16 @@
             window.location.href = "workshop_details.html";
         }
 
-        document.addEventListener('DOMContentLoaded', renderWorkshops);
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('search').addEventListener('input', filterWorkshops);
+            document.getElementById('cityFilter').addEventListener('change', filterWorkshops);
+            document.getElementById('priceFilter').addEventListener('change', filterWorkshops);
+            document.getElementById('sortFilter').addEventListener('change', filterWorkshops);
+            
+            filterWorkshops();
+        });
     </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.0/vanilla-tilt.min.js"></script>
 </body>
 </html>
 

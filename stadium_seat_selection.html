@@ -8,10 +8,11 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="api_config.js"></script>
     <style>
         body {
-            background-color: #f8f9fa;
-            color: #333;
+            background-color: #0c0f17;
+            color: #f1f3f9;
             font-family: 'Inter', sans-serif;
             margin: 0;
             padding: 0;
@@ -23,18 +24,18 @@
         /* --- LEFT SIDEBAR --- */
         .sidebar {
             width: 380px;
-            background: #fff;
+            background: #0f121d;
             height: 100%;
-            border-right: 1px solid #e0e0e0;
+            border-right: 1px solid #1f2438;
             display: flex;
             flex-direction: column;
-            box-shadow: 2px 0 10px rgba(0,0,0,0.05);
+            box-shadow: 5px 0 25px rgba(0,0,0,0.5);
             z-index: 10;
         }
 
         .match-header {
             padding: 24px;
-            border-bottom: 1px solid #eee;
+            border-bottom: 1px solid #1f2438;
         }
 
         .team-logos {
@@ -45,15 +46,16 @@
         }
 
         .team-logo-circle {
-            width: 44px;
-            height: 44px;
+            width: 46px;
+            height: 46px;
             border-radius: 50%;
-            border: 1px solid #ddd;
+            border: 2px solid #e50914;
             padding: 4px;
-            background: #fff;
+            background: #1a1e2e;
             display: flex;
             justify-content: center;
             align-items: center;
+            box-shadow: 0 0 10px rgba(229, 9, 20, 0.3);
         }
         .team-logo-circle img {
             max-width: 100%;
@@ -62,15 +64,16 @@
         }
 
         .vs-text {
-            font-size: 0.8rem;
-            font-weight: 700;
-            color: #888;
+            font-size: 0.85rem;
+            font-weight: 800;
+            color: #ff3b45;
+            text-shadow: 0 0 8px rgba(255, 59, 69, 0.4);
         }
 
         .match-title {
-            font-size: 1.15rem;
+            font-size: 1.25rem;
             font-weight: 800;
-            color: #1a1a1a;
+            color: #ffffff;
             text-transform: uppercase;
             line-height: 1.4;
             margin-bottom: 8px;
@@ -79,24 +82,40 @@
 
         .match-time {
             font-size: 0.85rem;
-            color: #666;
+            color: #8f9cae;
             margin-bottom: 12px;
         }
 
         .instruction-text {
             font-size: 0.8rem;
-            color: #777;
+            color: #6c7a9c;
             line-height: 1.5;
             margin-bottom: 0;
         }
 
         /* Price List Accordion */
         .price-list {
-            flex-grow: 1;
-            overflow-y: auto;
             padding: 0;
             margin: 0;
             list-style: none;
+        }
+
+        /* Scrollable Sidebar Content */
+        .sidebar-content {
+            flex-grow: 1;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: #e50914 #0f121d;
+        }
+        .sidebar-content::-webkit-scrollbar {
+            width: 6px;
+        }
+        .sidebar-content::-webkit-scrollbar-track {
+            background: #0f121d;
+        }
+        .sidebar-content::-webkit-scrollbar-thumb {
+            background: #e50914;
+            border-radius: 3px;
         }
 
         .price-item {
@@ -104,17 +123,20 @@
             justify-content: space-between;
             align-items: center;
             padding: 16px 24px;
-            border-bottom: 1px solid #f0f0f0;
+            border-bottom: 1px solid #1a1e2e;
             cursor: pointer;
-            transition: background 0.2s;
+            transition: all 0.25s ease;
         }
 
         .price-item:hover {
-            background: #fafafa;
+            background: #161a29;
+            padding-left: 28px;
         }
 
         .price-item.active {
-            background: #f0f8ff;
+            background: rgba(229, 9, 20, 0.15);
+            border-left: 4px solid #e50914;
+            box-shadow: inset 5px 0 15px rgba(229, 9, 20, 0.1);
         }
 
         .price-left {
@@ -127,6 +149,7 @@
             width: 14px;
             height: 14px;
             border-radius: 3px;
+            box-shadow: 0 0 6px rgba(255,255,255,0.2);
         }
 
         .price-value {
@@ -135,33 +158,33 @@
         }
 
         .price-item i {
-            color: #aaa;
+            color: #5d6b88;
             font-size: 0.9rem;
             transition: transform 0.2s;
         }
 
-        /* --- RIGHT SIDEBAR (STADIUM) --- */
+        /* --- RIGHT STADIUM CONTAINER --- */
         .stadium-container {
             flex-grow: 1;
-            background: #f0f0f5;
+            background: radial-gradient(circle at center, #1b2035 0%, #080a0f 100%);
             display: flex;
             justify-content: center;
             align-items: center;
             position: relative;
             overflow: hidden;
             perspective: 1200px;
-            box-shadow: inset 20px 0 30px rgba(0,0,0,0.05);
+            box-shadow: inset 20px 0 50px rgba(0,0,0,0.8);
         }
         
         .stadium-wrapper {
             width: 90%;
             height: 90%;
-            max-width: 800px;
-            max-height: 800px;
+            max-width: 750px;
+            max-height: 750px;
             transform-style: preserve-3d;
-            transform: rotateX(25deg) rotateY(-5deg);
+            transform: rotateX(20deg) rotateY(-5deg);
             transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
-            filter: drop-shadow(0 40px 30px rgba(0,0,0,0.25));
+            filter: drop-shadow(0 30px 40px rgba(0,0,0,0.7));
         }
 
         #stadiumSvg {
@@ -171,27 +194,28 @@
 
         .stand-path {
             cursor: pointer;
-            transition: opacity 0.2s, transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            stroke: #fff;
-            stroke-width: 2;
+            transition: opacity 0.2s, transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), filter 0.3s;
+            stroke: #0c0f17;
+            stroke-width: 3;
             transform-origin: center;
         }
 
         .stand-path:hover {
             opacity: 0.95;
-            filter: brightness(1.2);
-            transform: translateZ(40px) scale(1.02);
+            filter: brightness(1.3) drop-shadow(0 0 12px currentColor);
+            transform: translateZ(35px) scale(1.03);
         }
 
         .stand-path.dimmed {
-            opacity: 0.2;
+            opacity: 0.15;
+            filter: grayscale(80%) brightness(0.5);
         }
 
         .stand-text {
             font-family: 'Inter', sans-serif;
             font-size: 8px;
             font-weight: 700;
-            fill: #111;
+            fill: #0c0f17;
             pointer-events: none;
             text-anchor: middle;
             dominant-baseline: middle;
@@ -199,28 +223,29 @@
         
         .stand-text.light {
             fill: #fff;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.8);
         }
 
-        /* --- SEAT MODAL --- */
+        /* --- SEAT SELECTION MODAL --- */
         .seat-modal-overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(255,255,255,0.9);
+            background: rgba(8, 10, 15, 0.85);
             z-index: 1000;
             display: none;
             justify-content: center;
             align-items: center;
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(12px);
         }
         
         .seat-modal-content {
-            background: #fff;
+            background: #111422;
             padding: 30px;
-            border-radius: 12px;
+            border-radius: 16px;
             width: 90%;
-            max-width: 700px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.15);
-            border: 1px solid #eee;
+            max-width: 720px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.8);
+            border: 1px solid #232a45;
             position: relative;
         }
 
@@ -228,12 +253,13 @@
             position: absolute;
             top: 15px;
             right: 20px;
-            font-size: 1.8rem;
+            font-size: 2rem;
             cursor: pointer;
-            color: #888;
+            color: #6c7a9c;
+            transition: color 0.2s;
         }
 
-        .close-modal:hover { color: #333; }
+        .close-modal:hover { color: #fff; }
 
         /* SEAT STYLES */
         .seat-grid {
@@ -241,11 +267,22 @@
             flex-direction: column;
             align-items: center;
             gap: 8px;
-            margin: 30px 0;
+            margin: 25px 0;
             padding: 20px;
-            background: #f8f9fa;
-            border-radius: 8px;
-            border: 1px solid #eee;
+            background: #0b0d16;
+            border-radius: 10px;
+            border: 1px solid #1a1f33;
+            max-height: 400px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: #e50914 #0b0d16;
+        }
+        .seat-grid::-webkit-scrollbar {
+            width: 6px;
+        }
+        .seat-grid::-webkit-scrollbar-thumb {
+            background: #e50914;
+            border-radius: 3px;
         }
 
         .seat-row {
@@ -257,17 +294,17 @@
         .stadium-seat {
             width: 28px;
             height: 28px;
-            background: #fff;
-            border: 1px solid #ccc;
-            border-radius: 4px 4px 2px 2px;
+            background: #1f2438;
+            border: 1px solid #333c5e;
+            border-radius: 5px 5px 2px 2px;
             cursor: pointer;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #666;
+            color: #8f9cae;
             user-select: none;
-            transition: all 0.2s;
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             position: relative;
         }
 
@@ -278,39 +315,44 @@
             left: 10%;
             width: 80%;
             height: 3px;
-            background-color: #ddd;
+            background-color: rgba(255, 255, 255, 0.1);
             border-radius: 2px 2px 0 0;
         }
 
         .stadium-seat:hover {
-            border-color: #e50914;
-            color: #e50914;
+            border-color: #ff3b45;
+            color: #fff;
+            transform: translateY(-2px) scale(1.1);
+            box-shadow: 0 0 10px rgba(229, 9, 20, 0.5);
+            z-index: 5;
         }
 
         .stadium-seat.selected {
             background: #e50914;
-            border-color: #e50914;
+            border-color: #ff3b45;
             color: white;
-            transform: scale(1.1);
+            transform: scale(1.15);
+            box-shadow: 0 0 15px rgba(229, 9, 20, 0.8);
         }
 
-        .stadium-seat.selected::before { background-color: #b20710; }
+        .stadium-seat.selected::before { background-color: #ff3b45; }
 
         .stadium-seat.occupied {
-            background: #eee;
-            border-color: #ddd;
-            color: #aaa;
+            background: #0d0f17;
+            border-color: #1a1d2e;
+            color: #404b69;
             cursor: not-allowed;
+            opacity: 0.45;
         }
 
-        .stadium-seat.occupied::before { background-color: #ccc; }
-        .stadium-seat.occupied:hover { border-color: #ddd; color: #aaa; }
+        .stadium-seat.occupied::before { background-color: transparent; }
+        .stadium-seat.occupied:hover { border-color: #1a1d2e; color: #404b69; transform: none; box-shadow: none; }
 
         /* Checkout Panel */
         .checkout-panel {
-            background: #fff;
-            border-top: 1px solid #eee;
-            padding: 15px 40px;
+            background: rgba(15, 18, 29, 0.95);
+            border-top: 1px solid #232a45;
+            padding: 18px 40px;
             position: fixed;
             bottom: 0;
             width: 100%;
@@ -318,39 +360,56 @@
             justify-content: space-between;
             align-items: center;
             z-index: 10;
-            box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
+            box-shadow: 0 -10px 40px rgba(0,0,0,0.6);
+            backdrop-filter: blur(12px);
         }
 
-        .total-price { font-size: 1.5rem; font-weight: 800; color: #333; }
+        .total-price { font-size: 1.8rem; font-weight: 800; color: #e50914; text-shadow: 0 0 10px rgba(229, 9, 20, 0.3); }
         
         .btn-proceed {
-            background: #e50914;
+            background: linear-gradient(135deg, #e50914, #b80710);
             color: white;
-            padding: 10px 40px;
-            border-radius: 4px;
+            padding: 12px 40px;
+            border-radius: 30px;
             border: none;
-            font-weight: 600;
-            font-size: 1rem;
-            transition: background 0.2s;
+            font-weight: 700;
+            font-size: 1.05rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(229, 9, 20, 0.4);
         }
 
-        .btn-proceed:hover { background: #d00812; }
-        .btn-proceed:disabled { background: #ccc; cursor: not-allowed; }
+        .btn-proceed:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(229, 9, 20, 0.6);
+            background: linear-gradient(135deg, #f40a16, #d20812);
+        }
+        .btn-proceed:disabled { background: #3c445c; color: #77839f; cursor: not-allowed; box-shadow: none; transform: none; }
 
         .legend {
             display: flex;
             justify-content: center;
             gap: 25px;
             margin-bottom: 10px;
+            flex-wrap: wrap;
         }
-        .legend-item { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: #555; }
-        .legend-seat { width: 16px; height: 16px; border-radius: 2px; border: 1px solid #ccc; }
+        .legend-item { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: #8f9cae; }
+        .legend-seat { width: 18px; height: 18px; border-radius: 3px; border: 1px solid #333c5e; background: #1f2438; }
 
         .top-nav {
             position: absolute;
             top: 20px;
             right: 30px;
             z-index: 100;
+        }
+        
+        /* Pulse Animation */
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.15); opacity: 0.8; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .animate-pulse {
+            animation: pulse 1.5s infinite ease-in-out;
         }
     </style>
 </head>
@@ -366,17 +425,128 @@
             </div>
             <div class="match-title" id="matchTitleText">Match Title</div>
             <div class="match-time" id="matchDateTime">Date | Time</div>
-            <p class="instruction-text">Please select the category of your choice. It will get highlighted on the layout.</p>
+            
+            <!-- Urgency Alert -->
+            <div class="alert alert-warning py-2 px-3 mt-2 mb-2 rounded-pill d-inline-flex align-items-center gap-2" style="font-size: 0.78rem; background: rgba(229, 9, 20, 0.15); border: 1px solid rgba(229, 9, 20, 0.4); color: #ff3b45; width: 100%;">
+                <i class="bi bi-lightning-charge-fill animate-pulse text-danger"></i>
+                <span class="fw-bold">Filling Fast! Only 9% seats left.</span>
+            </div>
+
+            <!-- Weather Widget (Outdoor Event) -->
+            <div id="weatherWidget" class="d-none mt-2 mb-2 p-2 rounded-3" style="background: rgba(0, 0, 0, 0.55); border: 1px solid rgba(255, 255, 255, 0.1); backdrop-filter: blur(5px);">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center gap-2">
+                        <img id="weatherIcon" src="" alt="Weather" style="width: 32px; height: 32px; display: none;">
+                        <div>
+                            <span class="text-white fw-bold d-block" id="weatherTemp" style="font-size: 0.9rem;">--°C</span>
+                            <small class="text-light opacity-75" id="weatherDesc" style="font-size: 0.7rem;">Loading forecast...</small>
+                        </div>
+                    </div>
+                    <div class="text-end" style="font-size: 0.65rem; color: #ccc;">
+                        <span class="d-block"><i class="bi bi-droplet-fill text-info"></i> Hum: <strong class="text-white" id="weatherHumidity">--%</strong></span>
+                        <span><i class="bi bi-wind text-light"></i> Wind: <strong class="text-white" id="weatherWind">-- m/s</strong></span>
+                    </div>
+                </div>
+            </div>
+
+            <p class="instruction-text">Please select the stand of your choice. It will get highlighted on the layout.</p>
         </div>
-        <ul class="price-list" id="priceList">
-            <!-- Prices injected via JS -->
-        </ul>
+        
+        <!-- Scrollable Sidebar Content -->
+        <div class="sidebar-content">
+            <ul class="price-list" id="priceList">
+                <!-- Stand prices injected via JS -->
+            </ul>
+            
+            <!-- Match Day Guidelines Accordion -->
+            <div class="accordion accordion-flush px-3 py-2" id="guidelinesAccordion" style="border-top: 1px solid #1f2438; border-bottom: 1px solid #1f2438; background: #0c0e18;">
+                <div class="accordion-item" style="background: transparent; border: none;">
+                    <h2 class="accordion-header" id="headingOne">
+                        <button class="accordion-button collapsed px-1 py-2 text-white fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne" style="background: transparent; box-shadow: none; font-size: 0.82rem; border: none; gap: 8px; color: #fff !important; padding-right: 0;">
+                            <i class="bi bi-info-circle-fill text-danger"></i> MATCH DAY GUIDELINES
+                        </button>
+                    </h2>
+                    <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#guidelinesAccordion">
+                        <div class="accordion-body px-1 py-2 text-secondary" style="font-size: 0.76rem; line-height: 1.6;">
+                            <div class="mb-2">
+                                <strong class="text-white"><i class="bi bi-door-open-fill text-danger me-1"></i> Gates Open:</strong> 3 Hours prior to match start. Please arrive early to avoid security queues.
+                            </div>
+                            <div class="mb-2">
+                                <strong class="text-white"><i class="bi bi-shield-check text-success me-1"></i> Allowed:</strong> Wallet, cell phone, digital ticket copy, small purse, keys.
+                            </div>
+                            <div class="mb-2">
+                                <strong class="text-white"><i class="bi bi-shield-x text-danger me-1"></i> Prohibited:</strong> Power banks, bags, food/drinks, bottles, professional cameras, helmets, coins.
+                            </div>
+                            <div class="mb-2">
+                                <strong class="text-white"><i class="bi bi-p-circle-fill text-primary me-1"></i> Parking:</strong> pre-booked passes only. We highly recommend using public metro transit.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Match Day Add-ons Panel -->
+            <div class="px-3 py-3" style="border-bottom: 1px solid #1f2438; background: #131724;">
+                <h6 class="text-white fw-bold mb-3 d-flex align-items-center" style="font-size: 0.85rem;"><i class="bi bi-cart-plus-fill text-danger me-2"></i> MATCH DAY ADD-ONS</h6>
+                
+                <!-- Snack Combo -->
+                <div class="addon-item d-flex align-items-center justify-content-between mb-3 p-2 rounded-3" style="background: #0f121d; border: 1px solid #1f2438;">
+                    <div>
+                        <span class="text-white fw-bold d-block" style="font-size: 0.8rem;">Snack Combo</span>
+                        <small class="text-secondary" style="font-size: 0.7rem;">Popcorn & Cold Drink • ₹250</small>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <button class="btn btn-sm btn-outline-danger p-0 d-flex align-items-center justify-content-center" onclick="updateAddonQuantity('snack', -1)" style="width: 24px; height: 24px; border-radius: 4px; border-color: rgba(229, 9, 20, 0.3); font-size: 0.9rem; line-height: 1; color: #ff3b45;">-</button>
+                        <span id="qty-snack" class="text-white fw-bold" style="font-size: 0.8rem; min-width: 16px; text-align: center;">0</span>
+                        <button class="btn btn-sm btn-outline-success p-0 d-flex align-items-center justify-content-center" onclick="updateAddonQuantity('snack', 1)" style="width: 24px; height: 24px; border-radius: 4px; border-color: rgba(46, 204, 113, 0.3); font-size: 0.9rem; line-height: 1; color: #2ecc71;">+</button>
+                    </div>
+                </div>
+                
+                <!-- Parking Pass -->
+                <div class="addon-item d-flex align-items-center justify-content-between mb-3 p-2 rounded-3" style="background: #0f121d; border: 1px solid #1f2438;">
+                    <div>
+                        <span class="text-white fw-bold d-block" style="font-size: 0.8rem;">Parking Pass</span>
+                        <small class="text-secondary" style="font-size: 0.7rem;">Secured Parking Spot • ₹150</small>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <button class="btn btn-sm btn-outline-danger p-0 d-flex align-items-center justify-content-center" onclick="updateAddonQuantity('parking', -1)" style="width: 24px; height: 24px; border-radius: 4px; border-color: rgba(229, 9, 20, 0.3); font-size: 0.9rem; line-height: 1; color: #ff3b45;">-</button>
+                        <span id="qty-parking" class="text-white fw-bold" style="font-size: 0.8rem; min-width: 16px; text-align: center;">0</span>
+                        <button class="btn btn-sm btn-outline-success p-0 d-flex align-items-center justify-content-center" onclick="updateAddonQuantity('parking', 1)" style="width: 24px; height: 24px; border-radius: 4px; border-color: rgba(46, 204, 113, 0.3); font-size: 0.9rem; line-height: 1; color: #2ecc71;">+</button>
+                    </div>
+                </div>
+                
+                <!-- Official Team Jersey -->
+                <div class="addon-item d-flex align-items-center justify-content-between p-2 rounded-3" style="background: #0f121d; border: 1px solid #1f2438;">
+                    <div>
+                        <span class="text-white fw-bold d-block" style="font-size: 0.8rem;">Official Team Jersey</span>
+                        <small class="text-secondary" style="font-size: 0.7rem;">Official Supporter Jersey (L) • ₹750</small>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <button class="btn btn-sm btn-outline-danger p-0 d-flex align-items-center justify-content-center" onclick="updateAddonQuantity('jersey', -1)" style="width: 24px; height: 24px; border-radius: 4px; border-color: rgba(229, 9, 20, 0.3); font-size: 0.9rem; line-height: 1; color: #ff3b45;">-</button>
+                        <span id="qty-jersey" class="text-white fw-bold" style="font-size: 0.8rem; min-width: 16px; text-align: center;">0</span>
+                        <button class="btn btn-sm btn-outline-success p-0 d-flex align-items-center justify-content-center" onclick="updateAddonQuantity('jersey', 1)" style="width: 24px; height: 24px; border-radius: 4px; border-color: rgba(46, 204, 113, 0.3); font-size: 0.9rem; line-height: 1; color: #2ecc71;">+</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Map Section -->
+            <div class="p-3" style="background: #0f121d;" id="mapSection">
+                <h6 class="text-white fw-bold mb-2" style="font-size: 0.85rem;"><i class="bi bi-map-fill text-danger me-2"></i>Stadium Venue Location</h6>
+                <div class="ratio ratio-16x9 rounded-2 overflow-hidden mb-2" style="border: 1px solid #232a45; height: 130px;">
+                    <iframe id="mapIframe" src="" allowfullscreen loading="lazy" style="border: 0;"></iframe>
+                </div>
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2" style="font-size: 0.72rem;">
+                    <span class="text-secondary text-truncate" id="mapAddressText" style="max-width: 180px;">Loading address...</span>
+                    <a href="" target="_blank" id="directionsLink" class="btn btn-danger btn-sm rounded-pill px-2 py-1" style="background-color:#E50914; border:none; font-size: 0.7rem;"><i class="bi bi-geo me-1"></i> Directions</a>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Right Stadium Area -->
     <div class="stadium-container">
         <div class="top-nav">
-            <button class="btn btn-outline-dark btn-sm rounded-pill px-3" onclick="history.back()"><i class="bi bi-x-lg me-1"></i> Close</button>
+            <button class="btn btn-outline-light btn-sm rounded-pill px-3" onclick="history.back()"><i class="bi bi-x-lg me-1"></i> Close</button>
         </div>
         <div class="stadium-wrapper" data-tilt data-tilt-max="15" data-tilt-speed="400" data-tilt-perspective="1000" data-tilt-scale="1.05">
             <svg id="stadiumSvg" viewBox="0 0 1000 1000">
@@ -390,21 +560,21 @@
         <div class="seat-modal-content">
             <span class="close-modal" onclick="closeStand()">&times;</span>
             <div class="d-flex justify-content-between align-items-center mb-1">
-                <h4 id="modalStandTitle" class="mb-0 fw-bold" style="color: #333;">Stand Name</h4>
+                <h4 id="modalStandTitle" class="mb-0 fw-bold" style="color: #fff;">Stand Name</h4>
                 <div id="modalStandColor" style="width: 16px; height: 16px; border-radius: 3px;"></div>
             </div>
-            <p class="mb-3 text-muted">Rs. <span id="modalStandPrice" class="fw-bold text-dark"></span></p>
+            <p class="mb-3 text-muted">Rs. <span id="modalStandPrice" class="fw-bold text-white"></span></p>
             
             <div class="legend">
-                <div class="legend-item"><div class="legend-seat" style="background:#fff;"></div> Available</div>
-                <div class="legend-item"><div class="legend-seat" style="background:#e50914; border-color:#e50914;"></div> Selected</div>
-                <div class="legend-item"><div class="legend-seat" style="background:#eee;"></div> Occupied</div>
+                <div class="legend-item"><div class="legend-seat" style="background:#1f2438; border: 1px solid #333c5e;"></div> Available</div>
+                <div class="legend-item"><div class="legend-seat" style="background:#e50914; border-color:#ff3b45;"></div> Selected</div>
+                <div class="legend-item"><div class="legend-seat" style="background:#0d0f17; border-color:#1a1d2e; opacity: 0.45;"></div> Occupied</div>
             </div>
 
             <div class="seat-grid" id="seatGrid"></div>
             
             <div class="text-center">
-                <button class="btn btn-dark px-5 py-2" onclick="closeStand()">Confirm Selection</button>
+                <button class="btn btn-danger rounded-pill px-5 py-2" onclick="closeStand()">Confirm Selection</button>
             </div>
         </div>
     </div>
@@ -412,8 +582,11 @@
     <!-- Checkout Panel -->
     <div class="checkout-panel" id="checkoutPanel" style="display: none;">
         <div>
-            <h6 class="mb-1 fw-bold text-dark"><span id="selectedCount">0</span> Tickets Selected</h6>
-            <small id="selectedSeatsText" class="text-muted">None</small>
+            <h6 class="mb-1 fw-bold text-white"><span id="selectedCount">0</span> Tickets Selected</h6>
+            <div class="d-flex flex-column gap-1">
+                <small id="selectedSeatsText" class="text-muted" style="font-size: 0.75rem;">None</small>
+                <small id="selectedAddonsText" class="text-danger fw-bold" style="font-size: 0.75rem; display: none;"></small>
+            </div>
         </div>
         <div class="d-flex align-items-center">
             <div class="text-end me-4">
@@ -426,6 +599,7 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.0/vanilla-tilt.min.js"></script>
     <script src="stadium_seat_selection.js"></script>
 </body>

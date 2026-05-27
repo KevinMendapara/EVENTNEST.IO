@@ -87,27 +87,58 @@ if (data && data.name) {
   }
 }
 
-document.getElementById("titleDisplay").innerText = data ? data.name : "Movie";
-document.getElementById("modalTitle").innerText = (data ? data.name : "Movie") + " Trailer";
+if (data) {
+  document.getElementById("titleDisplay").innerText = data.name;
+  document.getElementById("modalTitle").innerText = data.name + " Trailer";
+  document.getElementById("heroBg").style.backgroundImage = `url('${initialImg}')`;
+  document.getElementById("synopsisDisplay").innerText = data.synopsis || "A visually stunning cinematic experience that you don't want to miss in theatres.";
+  document.getElementById("castDisplay").innerText = data.cast || "Various Artists";
+  document.getElementById("genreDisplay").innerText = data.genre || "Entertainment";
+  
+  if (data.duration) document.getElementById("runtimeDisplay").innerText = data.duration;
+  if (data.language) document.getElementById("languageDisplay").innerText = data.language;
+  if (data.certificate) document.getElementById("certDisplay").innerText = data.certificate;
+  if (data.releaseDate) document.getElementById("yearDisplay").innerText = data.releaseDate.split("-")[0];
+  if (data.director) document.getElementById("directorDisplay").innerText = data.director;
 
-// Fallback to static data immediately for fast loading
-document.getElementById("heroBg").style.backgroundImage = `url('${initialImg}')`;
-document.getElementById("synopsisDisplay").innerText = "A visually stunning cinematic experience that you don't want to miss in theatres.";
-document.getElementById("castDisplay").innerText = "Various Artists";
-document.getElementById("genreDisplay").innerText = "Entertainment";
+  if (data.rating) {
+      document.getElementById("ratingDisplay").innerHTML = `<i class="bi bi-star-fill text-warning me-1"></i> ${Number(data.rating).toFixed(1)}/10`;
+  }
+  if (data.audienceScore && data.audienceScore !== "N/A") {
+      document.getElementById("audienceDisplay").innerText = `${data.audienceScore}% Score`;
+  } else {
+      document.getElementById("audienceDisplay").innerText = "TBA Score";
+  }
 
-const TMDB_API_KEY = "867744ecc894f0582dea35e80fd71a4d";
+  const formatsDisplay = document.getElementById("formatsDisplay");
+  if (formatsDisplay && data.formats) {
+      formatsDisplay.innerHTML = data.formats.map(f => `<span class="badge bg-dark border border-secondary" style="font-size:0.75rem;">${f}</span>`).join("");
+  }
+}
+
+const TMDB_API_KEY = ""; // Kept as empty string client-side. Real key is moved to .env in backend.
 
 async function fetchTMDBDetails(movieName) {
   try {
-    const searchRes = await fetch(`https://api.themoviedb.org/3/search/movie?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(movieName)}`);
+    const hasProxy = typeof API_CONFIG !== 'undefined' && !!API_CONFIG.BACKEND_API_URL;
+    if (!hasProxy && (!TMDB_API_KEY || TMDB_API_KEY === "YOUR_API_KEY_HERE")) {
+      console.log("TMDB API key or backend proxy is not configured.");
+      return;
+    }
+    const searchUrl = hasProxy
+      ? `${API_CONFIG.BACKEND_API_URL}/api/movies/search?query=${encodeURIComponent(movieName)}`
+      : `https://api.themoviedb.org/3/search/movie?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(movieName)}`;
+    const searchRes = await fetch(searchUrl);
     const searchData = await searchRes.json();
     
     if (searchData.results && searchData.results.length > 0) {
       const movie = searchData.results[0];
       const movieId = movie.id;
       
-      const detailsRes = await fetch(`https://api.themoviedb.org/3/movie/${movieId}?api_key=${TMDB_API_KEY}&append_to_response=credits,videos,similar,reviews`);
+      const detailsUrl = hasProxy
+        ? `${API_CONFIG.BACKEND_API_URL}/api/movies/details/${movieId}`
+        : `https://api.themoviedb.org/3/movie/${movieId}?api_key=${TMDB_API_KEY}&append_to_response=credits,videos,similar,reviews`;
+      const detailsRes = await fetch(detailsUrl);
       const details = await detailsRes.json();
       
       // Backdrop Preloader with Multi-tier Proxy Failover
@@ -152,13 +183,30 @@ async function fetchTMDBDetails(movieName) {
       // Genres
       if (details.genres && details.genres.length > 0) {
         document.getElementById("genreDisplay").innerText = details.genres.map(g => g.name).join(", ");
-      } else {
-        document.getElementById("genreDisplay").innerText = "Action, Drama";
       }
       
-      // Cast
-      if (details.credits && details.credits.cast && details.credits.cast.length > 0) {
-        document.getElementById("castDisplay").innerText = details.credits.cast.slice(0, 5).map(c => c.name).join(", ");
+      // Cast & Director
+      if (details.credits) {
+        if (details.credits.cast && details.credits.cast.length > 0) {
+          document.getElementById("castDisplay").innerText = details.credits.cast.slice(0, 5).map(c => c.name).join(", ");
+        }
+        if (details.credits.crew && details.credits.crew.length > 0) {
+          const dir = details.credits.crew.find(c => c.job === "Director");
+          if (dir) {
+            document.getElementById("directorDisplay").innerText = dir.name;
+          }
+        }
+      }
+
+      // Spoken Languages
+      if (details.spoken_languages && details.spoken_languages.length > 0) {
+        document.getElementById("languageDisplay").innerText = details.spoken_languages.map(l => l.english_name).join(", ");
+      }
+
+      // Rating and Match Score
+      if (typeof details.vote_average === 'number' && details.vote_average > 0) {
+        document.getElementById("ratingDisplay").innerHTML = `<i class="bi bi-star-fill text-warning me-1"></i> ${details.vote_average.toFixed(1)}/10`;
+        document.getElementById("audienceDisplay").innerText = `${Math.round(details.vote_average * 10)}% Score`;
       }
       
       // Reviews
@@ -392,3 +440,24 @@ function handleMovieImgError(img) {
     handleMovieImgLoad(img);
   }
 }
+
+// Google Maps Integration for Nearby Theatres
+document.addEventListener('DOMContentLoaded', () => {
+  const selectedCity = localStorage.getItem("selectedCity") || "Mumbai";
+  const query = `Movie Theatres in ${selectedCity}`;
+  const mapAddressText = document.getElementById("mapAddressText");
+  const mapIframe = document.getElementById("mapIframe");
+  const directionsLink = document.getElementById("directionsLink");
+
+  if (mapAddressText) {
+    mapAddressText.innerText = query;
+  }
+  if (mapIframe && directionsLink) {
+    if (window.API_CONFIG && API_CONFIG.GOOGLE_MAPS_API_KEY) {
+        mapIframe.src = `https://www.google.com/maps/embed/v1/place?key=${API_CONFIG.GOOGLE_MAPS_API_KEY}&q=${encodeURIComponent(query)}`;
+    } else {
+        mapIframe.src = `https://maps.google.com/maps?q=${encodeURIComponent(query)}&t=&z=14&ie=UTF8&iwloc=&output=embed`;
+    }
+    directionsLink.href = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(query)}`;
+  }
+});

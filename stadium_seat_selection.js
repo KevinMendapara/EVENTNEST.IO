@@ -51,28 +51,45 @@ const CATEGORIES = [
     { price: 4500, color: '#D32F2F' }, // Red
 ];
 
-// Stands Mapping
+// Mapped stands with coordinates preserved and premium names
 const stands = [
     // --- INNER RING (r: 160 to 250) ---
-    { id: 'g', name: 'G BLOCK (VIDA)', cat: 0, r1: 160, r2: 250, a1: -25, a2: 25 },
-    { id: 'f', name: 'F BLOCK (JIO)', cat: 4, r1: 160, r2: 250, a1: 28, a2: 70 },
-    { id: 'e', name: 'E BLOCK (BKT)', cat: 3, r1: 160, r2: 250, a1: 73, a2: 125 },
-    { id: 'd', name: 'D BLOCK (VIDA)', cat: 1, r1: 160, r2: 250, a1: 128, a2: 175 },
-    { id: 'club1', name: 'CLUB HOUSE LOWER', cat: 6, r1: 160, r2: 230, a1: 178, a2: 240 },
-    { id: 'l', name: 'L BLOCK (PREMIUM)', cat: 1, r1: 160, r2: 250, a1: 243, a2: 265 },
-    { id: 'k', name: 'K BLOCK (JIO)', cat: 4, r1: 160, r2: 250, a1: 268, a2: 300 },
-    { id: 'h', name: 'H BLOCK (JIO)', cat: 3, r1: 160, r2: 250, a1: 303, a2: 332 },
+    { id: 'g', name: 'West Stand A', cat: 0, r1: 160, r2: 250, a1: -25, a2: 25 },
+    { id: 'f', name: 'North Stand A', cat: 4, r1: 160, r2: 250, a1: 28, a2: 70 },
+    { id: 'e', name: 'East Stand A', cat: 3, r1: 160, r2: 250, a1: 73, a2: 125 },
+    { id: 'd', name: 'Pavilion B', cat: 1, r1: 160, r2: 250, a1: 128, a2: 175 },
+    { id: 'club1', name: 'Corporate Box A', cat: 6, r1: 160, r2: 230, a1: 178, a2: 240 },
+    { id: 'l', name: 'South Stand A', cat: 1, r1: 160, r2: 250, a1: 243, a2: 265 },
+    { id: 'k', name: 'West Stand B', cat: 4, r1: 160, r2: 250, a1: 268, a2: 300 },
+    { id: 'h', name: 'Pavilion A', cat: 3, r1: 160, r2: 250, a1: 303, a2: 332 },
 
     // --- OUTER RING (r: 255 to 350) ---
-    { id: 'g1', name: 'G1 BLOCK', cat: 0, r1: 255, r2: 360, a1: -30, a2: 30 },
-    { id: 'f1', name: 'F1 BLOCK', cat: 5, r1: 255, r2: 360, a1: 33, a2: 75 },
-    { id: 'd1', name: 'D1 BLOCK', cat: 0, r1: 255, r2: 360, a1: 78, a2: 175 },
+    { id: 'g1', name: 'West Stand Upper', cat: 0, r1: 255, r2: 360, a1: -30, a2: 30 },
+    { id: 'f1', name: 'North Stand Upper', cat: 5, r1: 255, r2: 360, a1: 33, a2: 75 },
+    { id: 'd1', name: 'East Stand Upper', cat: 0, r1: 255, r2: 360, a1: 78, a2: 175 },
     
     // Bottom outer ring has slightly smaller inner radius
-    { id: 'b1', name: 'B1 BLOCK', cat: 2, r1: 235, r2: 340, a1: 178, a2: 215 },
-    { id: 'club2', name: 'CLUB HOUSE UPPER', cat: 2, r1: 235, r2: 340, a1: 218, a2: 255 },
-    { id: 'l1', name: 'L1 BLOCK', cat: 2, r1: 255, r2: 360, a1: 258, a2: 327 }
+    { id: 'b1', name: 'VIP Box', cat: 2, r1: 235, r2: 340, a1: 178, a2: 215 },
+    { id: 'club2', name: 'Corporate Box B', cat: 2, r1: 235, r2: 340, a1: 218, a2: 255 },
+    { id: 'l1', name: 'South Stand Upper', cat: 2, r1: 255, r2: 360, a1: 258, a2: 327 }
 ];
+
+// Add-ons tracking
+let addons = {
+    snack: 0,
+    parking: 0,
+    jersey: 0
+};
+const ADDON_PRICES = {
+    snack: 250,
+    parking: 150,
+    jersey: 750
+};
+const ADDON_NAMES = {
+    snack: "Snack Combo",
+    parking: "Parking Pass",
+    jersey: "Official Team Jersey"
+};
 
 function polarToCartesian(centerX, centerY, radius, angleInDegrees) {
     var angleInRadians = (angleInDegrees - 90) * Math.PI / 180.0;
@@ -111,7 +128,7 @@ function initLayout() {
         <rect x="${CENTER_X - 12}" y="${CENTER_Y - 40}" width="24" height="80" fill="#fff"/>
     `;
 
-    // 2. Draw Stands
+    // 2. Draw Stands & Build stands-themed sidebar list
     stands.forEach(stand => {
         const cat = CATEGORIES[stand.cat];
         stand.price = cat.price;
@@ -129,11 +146,12 @@ function initLayout() {
         path.setAttribute("d", pathData);
         path.setAttribute("fill", stand.color);
         path.setAttribute("class", "stand-path");
+        path.setAttribute("id", "path-" + stand.id);
         path.setAttribute("data-cat", stand.cat);
         path.addEventListener('click', () => openStand(stand));
         
         // Hover effects
-        path.onmouseover = () => highlightCategory(stand.cat);
+        path.onmouseover = () => highlightStand(stand.id);
         path.onmouseout = () => resetHighlight();
 
         // Create text
@@ -160,45 +178,57 @@ function initLayout() {
 
         svg.appendChild(path);
         svg.appendChild(text);
-    });
 
-    // 3. Build Price List Sidebar
-    CATEGORIES.forEach((cat, index) => {
+        // Sidebar stands item construction
+        const seed = stand.id.charCodeAt(0) + (stand.id.charCodeAt(stand.id.length - 1) || 0);
+        const occupancy = Math.floor(75 + (seed % 21)); // Mock occupancy between 75% and 95%
+        
+        let badgeHTML = "";
+        if (occupancy >= 91) {
+            badgeHTML = `<span class="badge bg-danger ms-2" style="font-size: 0.65rem; padding: 2px 6px;">SELLING FAST</span>`;
+        } else if (stand.name.toLowerCase().includes("vip") || stand.name.toLowerCase().includes("corporate")) {
+            badgeHTML = `<span class="badge bg-warning text-dark ms-2" style="font-size: 0.65rem; padding: 2px 6px;">VIP VIEW</span>`;
+        } else {
+            badgeHTML = `<span class="badge bg-success ms-2" style="font-size: 0.65rem; padding: 2px 6px;">AVAILABLE</span>`;
+        }
+
         const li = document.createElement('li');
-        li.className = 'price-item';
-        li.dataset.cat = index;
+        li.className = 'price-item d-flex flex-column align-items-stretch px-3 py-2 border-bottom';
+        li.style.borderBottomColor = '#1f2438';
+        li.dataset.standId = stand.id;
         li.innerHTML = `
-            <div class="price-left">
-                <div class="price-color-box" style="background-color: ${cat.color}"></div>
-                <div class="price-value" style="color: ${cat.color}">Rs. ${cat.price}</div>
+            <div class="d-flex justify-content-between align-items-center mb-1">
+                <div class="price-left">
+                    <div class="price-color-box" style="background-color: ${stand.color}"></div>
+                    <div class="stand-name-text text-white fw-bold" style="font-size: 0.82rem;">${stand.name}</div>
+                    ${badgeHTML}
+                </div>
+                <div class="price-value" style="color: ${stand.color}; font-size: 0.85rem;">₹${stand.price.toLocaleString()}</div>
             </div>
-            <i class="bi bi-chevron-down"></i>
+            <div class="d-flex justify-content-between align-items-center" style="font-size: 0.72rem; color: #8f9cae;">
+                <span><i class="bi bi-people-fill me-1"></i> Occupancy: <strong>${occupancy}%</strong></span>
+                <span class="text-secondary">Select seats <i class="bi bi-chevron-right ms-1"></i></span>
+            </div>
         `;
-        
-        li.onmouseover = () => highlightCategory(index);
+
+        li.onmouseover = () => highlightStand(stand.id);
         li.onmouseout = () => resetHighlight();
-        li.onclick = () => openCategory(index);
-        
+        li.onclick = () => openStand(stand);
+
         priceList.appendChild(li);
     });
 }
 
-function openCategory(catIndex) {
-    const stand = stands.find(s => s.cat === catIndex);
-    if (stand) openStand(stand);
-}
-
-// Highlight logic
-function highlightCategory(catIndex) {
-    // Highlight list item
+// Highlight single stand synchronization
+function highlightStand(standId) {
     document.querySelectorAll('.price-item').forEach(item => {
-        if(parseInt(item.dataset.cat) === catIndex) item.classList.add('active');
+        if(item.dataset.standId === standId) item.classList.add('active');
         else item.classList.remove('active');
     });
 
-    // Highlight SVG paths
     document.querySelectorAll('.stand-path').forEach(path => {
-        if(parseInt(path.dataset.cat) === catIndex) {
+        const pathStandId = path.getAttribute('id').replace('path-', '');
+        if(pathStandId === standId) {
             path.classList.remove('dimmed');
         } else {
             path.classList.add('dimmed');
@@ -259,6 +289,7 @@ function openStand(stand) {
             const seatDiv = document.createElement('div');
             seatDiv.className = 'stadium-seat';
             seatDiv.innerText = c;
+            seatDiv.setAttribute("data-id", seatId);
             
             // Randomly occupy some seats, deterministic
             const isOccupied = (seatId.charCodeAt(0) + seatId.charCodeAt(seatId.length-1) + c * r) % 7 === 0;
@@ -298,21 +329,61 @@ function toggleSeat(element, id, price) {
     updateCheckout();
 }
 
+// Addon updater function
+window.updateAddonQuantity = function(addonKey, change) {
+    const newQty = (addons[addonKey] || 0) + change;
+    if (newQty < 0) return;
+    addons[addonKey] = newQty;
+    
+    const qtyEl = document.getElementById(`qty-${addonKey}`);
+    if (qtyEl) {
+        qtyEl.innerText = newQty;
+    }
+    
+    updateCheckout();
+};
+
 function updateCheckout() {
     const count = selectedSeats.length;
-    const total = selectedSeats.reduce((sum, s) => sum + s.price, 0);
+    const ticketTotal = selectedSeats.reduce((sum, s) => sum + s.price, 0);
+    
+    // Addons calculation
+    let addonsTotal = 0;
+    let addonsList = [];
+    for (const key in addons) {
+        if (addons[key] > 0) {
+            addonsTotal += addons[key] * ADDON_PRICES[key];
+            addonsList.push(`${ADDON_NAMES[key]} (x${addons[key]})`);
+        }
+    }
+    
+    const grandTotal = ticketTotal + addonsTotal;
     
     document.getElementById('selectedCount').innerText = count;
-    document.getElementById('totalPrice').innerText = total;
+    document.getElementById('totalPrice').innerText = grandTotal.toLocaleString();
     
     const panel = document.getElementById('checkoutPanel');
     
     if (count > 0) {
         document.getElementById('selectedSeatsText').innerText = selectedSeats.map(s => s.id).join(', ');
+        
+        const addonsTextEl = document.getElementById('selectedAddonsText');
+        if (addonsTextEl) {
+            if (addonsList.length > 0) {
+                addonsTextEl.innerText = "+ Add-ons: " + addonsList.join(', ');
+                addonsTextEl.style.display = 'block';
+            } else {
+                addonsTextEl.style.display = 'none';
+            }
+        }
+        
         document.getElementById('proceedBtn').disabled = false;
         panel.style.display = 'flex';
     } else {
         document.getElementById('selectedSeatsText').innerText = 'None';
+        const addonsTextEl = document.getElementById('selectedAddonsText');
+        if (addonsTextEl) addonsTextEl.style.display = 'none';
+        
         document.getElementById('proceedBtn').disabled = true;
         panel.style.display = 'none';
     }
@@ -321,19 +392,148 @@ function updateCheckout() {
 function goToPayment() {
     if (selectedSeats.length === 0) return;
     
-    const total = selectedSeats.reduce((sum, s) => sum + s.price, 0);
+    const ticketTotal = selectedSeats.reduce((sum, s) => sum + s.price, 0);
     
+    let addonsTotal = 0;
+    let selectedAddonsList = [];
+    for (const key in addons) {
+        if (addons[key] > 0) {
+            addonsTotal += addons[key] * ADDON_PRICES[key];
+            selectedAddonsList.push({
+                key: key,
+                name: ADDON_NAMES[key],
+                quantity: addons[key],
+                price: ADDON_PRICES[key]
+            });
+        }
+    }
+    
+    const grandTotal = ticketTotal + addonsTotal;
+    
+    // Clear other flow configurations to prevent order conflicts
     localStorage.removeItem("concertData");
     localStorage.removeItem("movie");
+    
+    // Populate standard checkout keys
     localStorage.setItem("seats", JSON.stringify(selectedSeats.map(s => s.id)));
-    localStorage.setItem("amount", total);
-
-    // Clear old data to avoid conflicts
-    localStorage.removeItem("movie");
-    localStorage.removeItem("concertData");
+    localStorage.setItem("amount", grandTotal);
     
+    // Save cricket custom information
+    localStorage.setItem("cricketTickets", JSON.stringify(selectedSeats));
+    localStorage.setItem("cricketAddons", JSON.stringify(selectedAddonsList));
+    localStorage.setItem("cricketAddonsTotal", addonsTotal);
+    localStorage.setItem("cricketTicketTotal", ticketTotal);
+
     window.location.href = "payment.html";
 }
 
-// Bootstrap layout
-document.addEventListener('DOMContentLoaded', initLayout);
+// --- SUPABASE REALTIME DUMMY STRUCTURE (Ready for database hookup) ---
+function setupRealtimeSeatListener() {
+    if (typeof supabaseClient !== 'undefined' && !SUPABASE_URL.includes('YOUR-PROJECT-ID')) {
+        const matchTitle = matchData ? matchData.title : "Match";
+        
+        // Listen to PostgreSQL changes on orders table
+        supabaseClient.channel('live-stadium-seats')
+            .on('postgres_changes', { 
+                event: 'INSERT', 
+                schema: 'public', 
+                table: 'orders',
+                filter: `title=eq.${matchTitle}` 
+            }, payload => {
+                console.log('Live stadium seat booking detected:', payload.new);
+                if (payload.new && payload.new.seats) {
+                    try {
+                        const seatsBooked = JSON.parse(payload.new.seats);
+                        if (Array.isArray(seatsBooked)) {
+                            seatsBooked.forEach(sid => {
+                                const seatEl = document.querySelector(`.stadium-seat[data-id="${sid}"]`);
+                                if (seatEl && !seatEl.classList.contains("selected")) {
+                                    seatEl.classList.add("occupied");
+                                    seatEl.onclick = null;
+                                }
+                            });
+                        }
+                    } catch(e) {}
+                }
+            })
+            .subscribe();
+    }
+}
+
+// Bootstrap layout & realtime listener
+document.addEventListener('DOMContentLoaded', () => {
+    initLayout();
+    setupRealtimeSeatListener();
+
+    // Map and Weather details loading
+    if (matchData) {
+        const venue = matchData.venue || "";
+        let city = "";
+        if (venue.includes(",")) {
+            city = venue.split(",").pop().trim();
+        } else {
+            city = venue;
+        }
+
+        const mapAddressText = document.getElementById("mapAddressText");
+        const mapIframe = document.getElementById("mapIframe");
+        const directionsLink = document.getElementById("directionsLink");
+
+        if (mapAddressText) {
+            mapAddressText.innerText = venue;
+        }
+
+        if (mapIframe && directionsLink) {
+            if (window.API_CONFIG && API_CONFIG.GOOGLE_MAPS_API_KEY) {
+                mapIframe.src = `https://www.google.com/maps/embed/v1/place?key=${API_CONFIG.GOOGLE_MAPS_API_KEY}&q=${encodeURIComponent(venue)}`;
+            } else {
+                mapIframe.src = `https://maps.google.com/maps?q=${encodeURIComponent(venue)}&t=&z=14&ie=UTF8&iwloc=&output=embed`;
+            }
+            directionsLink.href = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(venue)}`;
+        }
+
+        // OpenWeatherMap loading for Cricket Matches
+        const weatherWidget = document.getElementById("weatherWidget");
+        const weatherTemp = document.getElementById("weatherTemp");
+        const weatherDesc = document.getElementById("weatherDesc");
+        const weatherIcon = document.getElementById("weatherIcon");
+        const weatherHumidity = document.getElementById("weatherHumidity");
+        const weatherWind = document.getElementById("weatherWind");
+
+        const hasWeatherProxy = window.API_CONFIG && !!API_CONFIG.BACKEND_API_URL;
+        const hasWeatherDirect = window.API_CONFIG && !!API_CONFIG.OPENWEATHERMAP_API_KEY;
+        if ((hasWeatherProxy || hasWeatherDirect) && city) {
+            const weatherUrl = hasWeatherProxy
+                ? `${API_CONFIG.BACKEND_API_URL}/api/weather?city=${encodeURIComponent(city)}`
+                : `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&units=metric&appid=${API_CONFIG.OPENWEATHERMAP_API_KEY}`;
+            fetch(weatherUrl)
+                .then(res => {
+                    if (!res.ok) throw new Error("Weather API response error");
+                    return res.json();
+                })
+                .then(wdata => {
+                    if (wdata && wdata.main) {
+                        if (weatherTemp) weatherTemp.innerText = `${Math.round(wdata.main.temp)}°C`;
+                        if (wdata.weather && wdata.weather[0] && weatherDesc) {
+                            weatherDesc.innerText = wdata.weather[0].description;
+                            if (weatherIcon) {
+                                weatherIcon.src = `https://openweathermap.org/img/wn/${wdata.weather[0].icon}@2x.png`;
+                                weatherIcon.style.display = "block";
+                            }
+                        }
+                        if (weatherHumidity) weatherHumidity.innerText = `${wdata.main.humidity}%`;
+                        if (weatherWind) weatherWind.innerText = `${wdata.wind.speed} m/s`;
+                        if (weatherWidget) weatherWidget.classList.remove("d-none");
+                    }
+                })
+                .catch(err => {
+                    console.warn("Failed to load weather from OpenWeatherMap:", err);
+                    if (weatherDesc) weatherDesc.innerText = "Weather unavailable";
+                    if (weatherWidget) weatherWidget.classList.remove("d-none");
+                });
+        } else {
+            if (weatherDesc) weatherDesc.innerText = "Weather forecast unavailable (check key)";
+            if (weatherWidget) weatherWidget.classList.remove("d-none");
+        }
+    }
+});

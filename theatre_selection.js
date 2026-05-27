@@ -173,42 +173,177 @@ const cityTheatres = {
   ]
 };
 
-let selectedCity = localStorage.getItem("selectedCity") || "Default";
-if (!cityTheatres[selectedCity]) {
-  selectedCity = "Default"; // fallback if city is not in our specific list
+// Retrieve Movie Data from local storage or set fallbacks
+const storedMovie = localStorage.getItem("movie");
+let movieData = {
+  name: "Dune: Part Two",
+  genre: "Sci-Fi",
+  duration: "2h 46m",
+  rating: 8.8,
+  img: "images/dune_part_two_ver14.jpg",
+  language: "English",
+  certificate: "UA",
+  synopsis: "Paul Atreides unites with Chani and the Fremen while seeking revenge against the conspirators who destroyed his family.",
+  formats: ["2D", "3D", "IMAX"],
+  price: 250
+};
+
+if (storedMovie) {
+  try {
+    const parsed = JSON.parse(storedMovie);
+    movieData = { ...movieData, ...parsed };
+  } catch(e) {
+    console.error("Error parsing stored movie:", e);
+  }
 }
 
-let theatres = cityTheatres[selectedCity];
+// Bind Movie Details to Header & Sidebar
+document.addEventListener("DOMContentLoaded", () => {
+  const movieTitleEl = document.getElementById("movieTitle");
+  const movieHeaderMetaEl = document.getElementById("movieHeaderMeta");
+  const backdropHeaderEl = document.getElementById("backdropHeader");
+  const certBadgeEl = document.getElementById("certBadge");
+  const sidebarPosterEl = document.getElementById("sidebarPoster");
+  const sidebarSynopsisEl = document.getElementById("sidebarSynopsis");
+  const sidebarLangEl = document.getElementById("sidebarLang");
+  const sidebarFormatsEl = document.getElementById("sidebarFormats");
+  const cityBadgeEl = document.getElementById("cityBadge");
 
-let container = document.getElementById("theatreList");
-container.innerHTML = `<h5 class="mb-4 text-secondary">Showing theatres in <strong class="text-white">${selectedCity === "Default" ? "your area" : selectedCity}</strong></h5>`;
+  let selectedCity = localStorage.getItem("selectedCity") || "Default";
+  if (!cityTheatres[selectedCity]) {
+    selectedCity = "Default";
+  }
 
-theatres.forEach(t => {
-  let screensHtml = t.screens.map(screen => `
-    <div class="mt-3">
-      <div class="mb-2" style="color: #46b864; font-size: 0.85rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;">
-        <i class="bi bi-display me-1"></i> ${screen.type}
-      </div>
-      <div class="d-flex flex-wrap gap-2">
-      ${screen.times.map(time =>
-        `<button onclick="selectTime('${t.name}','${time}', '${screen.type}')"
-         class="btn btn-outline-light btn-sm fw-bold px-3 py-2 border-secondary" style="transition: all 0.2s ease;" onmouseover="this.style.borderColor='#e50914'; this.style.color='#e50914';" onmouseout="this.style.borderColor=''; this.style.color='';">${time}</button>`
-      ).join("")}
-      </div>
-    </div>
-  `).join("");
+  // Populate HTML elements
+  if (movieTitleEl) movieTitleEl.innerText = movieData.name;
+  if (movieHeaderMetaEl) {
+    const displayRating = movieData.rating && movieData.rating !== "N/A" ? `⭐ ${Number(movieData.rating).toFixed(1)}/10` : "⭐ TBA";
+    movieHeaderMetaEl.innerText = `${movieData.genre} • ${movieData.duration} • ${displayRating}`;
+  }
+  if (backdropHeaderEl && movieData.img) {
+    backdropHeaderEl.style.backgroundImage = `url('${movieData.img}')`;
+  }
+  if (certBadgeEl) certBadgeEl.innerText = movieData.certificate;
+  if (sidebarPosterEl && movieData.img) {
+    sidebarPosterEl.src = movieData.img;
+  }
+  if (sidebarSynopsisEl) {
+    sidebarSynopsisEl.innerText = movieData.synopsis || movieData.overview || "No overview available for this movie.";
+  }
+  if (sidebarLangEl) sidebarLangEl.innerText = movieData.language;
+  if (sidebarFormatsEl) {
+    sidebarFormatsEl.innerText = (movieData.formats || ["2D"]).join(", ");
+  }
+  if (cityBadgeEl) {
+    cityBadgeEl.innerText = selectedCity === "Default" ? "Nearby" : selectedCity;
+  }
 
-  container.innerHTML += `
-    <div class="card p-4 mb-4 text-white shadow" style="background-color: #1e1e1e; border: 1px solid #333; border-radius: 8px;">
-      <h4 class="mb-1" style="color: #fff;"><i class="bi bi-camera-reels" style="color: #e50914;"></i> ${t.name}</h4>
-      ${screensHtml}
-    </div>
-  `;
+  renderTheatres(selectedCity);
 });
 
-function selectTime(theatre, time, screenType) {
+// Render premium theatre layout
+function renderTheatres(selectedCity) {
+  const container = document.getElementById("theatreList");
+  if (!container) return;
+
+  const theatres = cityTheatres[selectedCity];
+  container.innerHTML = "";
+
+  theatres.forEach((t, tIndex) => {
+    // Deterministic distance calculation
+    const distanceVal = ((t.name.length % 5) * 1.5 + 1.2).toFixed(1);
+    
+    // Facility tags assignment
+    const facilityTags = ["Parking", "Food & Beverages"];
+    if (t.name.includes("ICON") || t.name.includes("IMAX") || t.name.includes("Insignia") || t.name.includes("Maison")) {
+      facilityTags.push("Recliners");
+      facilityTags.push("Dolby Atmos");
+      facilityTags.push("Valet Parking");
+    } else if (t.name.includes("INOX") || t.name.includes("Cinepolis")) {
+      facilityTags.push("Recliners");
+    }
+
+    const facilityBadgesHtml = facilityTags.map(tag => {
+      let icon = "bi-check-circle";
+      if (tag === "Parking" || tag === "Valet Parking") icon = "bi-p-circle-fill text-primary";
+      if (tag === "Food & Beverages") icon = "bi-cup-straw text-success";
+      if (tag === "Recliners") icon = "bi-chair-fill text-warning";
+      if (tag === "Dolby Atmos") icon = "bi-volume-up-fill text-info";
+      return `<span class="facility-badge me-2 mb-2"><i class="bi ${icon} me-1"></i> ${tag}</span>`;
+    }).join("");
+
+    // Render screen groups
+    let screensHtml = t.screens.map((screen, sIndex) => {
+      const format = screen.type;
+      
+      // Determine screen name
+      let screenName = `Screen ${sIndex + 1}`;
+      if (format.toLowerCase().includes("imax")) screenName = "IMAX Screen";
+      else if (format.toLowerCase().includes("4dx")) screenName = "4DX Motion Screen";
+      else if (format.toLowerCase().includes("vip") || format.toLowerCase().includes("insignia") || format.toLowerCase().includes("director")) screenName = "VIP Luxury Lounge";
+      else if (format.toLowerCase().includes("atmos")) screenName = "Dolby Atmos Theatre";
+
+      // Price multiplier calculation based on format and base movie price
+      const baseMoviePrice = movieData.price || 250;
+      let calculatedPrice = baseMoviePrice;
+      if (format.includes("IMAX")) calculatedPrice += 150;
+      else if (format.includes("4DX")) calculatedPrice += 200;
+      else if (format.includes("VIP") || format.includes("INSIGNIA") || format.includes("Director") || format.includes("Insignia")) calculatedPrice += 250;
+      else if (format.includes("3D")) calculatedPrice += 50;
+      else if (format.includes("Dolby Atmos") || format.includes("ScreenX")) calculatedPrice += 30;
+
+      const timeButtonsHtml = screen.times.map(time => {
+        const safeTheatre = t.name.replace(/'/g, "\\'");
+        const safeScreen = screenName.replace(/'/g, "\\'");
+        const safeFormat = format.replace(/'/g, "\\'");
+        
+        return `<button onclick="selectTime('${safeTheatre}', '${safeScreen}', '${time}', '${safeFormat}', ${calculatedPrice})" class="showtime-btn">${time}</button>`;
+      }).join("");
+
+      return `
+        <div class="screen-group mb-3">
+          <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+            <div>
+              <span class="screen-name"><i class="bi bi-display me-1"></i> ${screenName}</span>
+              <span class="badge bg-dark border border-secondary text-secondary ms-2" style="font-size:0.75rem;">${format}</span>
+            </div>
+            <div class="text-secondary small">Ticket Price: <strong class="text-success">₹${calculatedPrice}</strong></div>
+          </div>
+          <div class="d-flex flex-wrap gap-2">
+            ${timeButtonsHtml}
+          </div>
+        </div>
+      `;
+    }).join("");
+
+    container.innerHTML += `
+      <div class="theatre-card p-4">
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
+          <div>
+            <h5 class="fw-bold text-white mb-1"><i class="bi bi-camera-reels-fill text-danger me-2"></i> ${t.name}</h5>
+            <div class="text-secondary small"><i class="bi bi-geo-alt-fill me-1"></i> ${selectedCity === "Default" ? "Near you" : selectedCity} • ${distanceVal} km away</div>
+          </div>
+        </div>
+        <div class="d-flex flex-wrap mb-4">
+          ${facilityBadgesHtml}
+        </div>
+        <div>
+          ${screensHtml}
+        </div>
+      </div>
+    `;
+  });
+}
+
+// selectTime function storing comprehensive showtime context
+function selectTime(theatre, screen, time, format, price) {
   localStorage.setItem("theatre", theatre);
+  localStorage.setItem("screen", screen);
   localStorage.setItem("time", time);
-  localStorage.setItem("screenType", screenType);
+  localStorage.setItem("format", format);
+  localStorage.setItem("price", price);
+  // Support fallback
+  localStorage.setItem("screenType", format);
+  
   window.location.href = "seat_selection_movie.html";
 }

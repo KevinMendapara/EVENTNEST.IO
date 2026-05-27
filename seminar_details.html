@@ -9,6 +9,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    <script src="api_config.js"></script>
     <style>
         body {
             background-color: #0d0d14;
@@ -234,6 +235,18 @@
             Join us for a transformative experience featuring industry pioneers, cutting-edge discussions, and unparalleled networking opportunities. This event is designed to give you deep insights into the rapidly evolving landscape of modern technology. Whether you are a seasoned professional or an enthusiastic beginner, there is something valuable for everyone. Get ready to explore revolutionary concepts and actionable strategies.
         </p>
 
+        <!-- Map Section -->
+        <div class="mt-5 p-4 rounded-4" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 10px 30px rgba(0,0,0,0.5);" id="mapSection">
+            <h4 class="text-white fw-bold mb-3"><i class="bi bi-map-fill text-info me-2"></i>Venue Location</h4>
+            <div class="ratio ratio-16x9 rounded-3 overflow-hidden mb-3" style="border: 1px solid rgba(255, 255, 255, 0.1); height: 300px;">
+                <iframe id="mapIframe" src="" allowfullscreen loading="lazy" style="border: 0;"></iframe>
+            </div>
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <span class="text-secondary" id="mapAddressText">Loading address...</span>
+                <a href="" target="_blank" id="directionsLink" class="btn btn-primary btn-sm rounded-pill px-3 fw-bold" style="background: linear-gradient(45deg, #4facfe, #00f2fe); border:none; color:#000;"><i class="bi bi-geo me-1"></i> Get Directions</a>
+            </div>
+        </div>
+
         <!-- Reviews Section -->
         <div class="reviews-section">
             <h3 class="mb-4">Participant Reviews</h3>
@@ -297,6 +310,19 @@
             speakerImg.src = eventData.speakerImg || 'images/av_sarah.jpg';
             document.getElementById("speakerName").innerText = eventData.speaker;
             document.getElementById("speakerRole").innerText = eventData.speakerRole;
+
+            // Load Google Maps Embed or free Search Embed fallback
+            const query = (eventData.venue ? eventData.venue + ", " : "") + (eventData.city || "");
+            document.getElementById("mapAddressText").innerText = query;
+            const mapIframe = document.getElementById("mapIframe");
+            const directionsLink = document.getElementById("directionsLink");
+            
+            if (window.API_CONFIG && API_CONFIG.GOOGLE_MAPS_API_KEY) {
+                mapIframe.src = `https://www.google.com/maps/embed/v1/place?key=${API_CONFIG.GOOGLE_MAPS_API_KEY}&q=${encodeURIComponent(query)}`;
+            } else {
+                mapIframe.src = `https://maps.google.com/maps?q=${encodeURIComponent(query)}&t=&z=14&ie=UTF8&iwloc=&output=embed`;
+            }
+            directionsLink.href = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(query)}`;
         }
 
         function proceedToPayment() {

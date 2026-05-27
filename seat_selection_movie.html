@@ -111,62 +111,71 @@
     
     /* INDIVIDUAL SEAT */
     .seat {
-      width: 26px; /* Smaller seat */
+      width: 26px;
       height: 24px;
       background-color: #2b3040;
+      border: 1px solid #3b4259;
       border-radius: 5px 5px 2px 2px;
       position: relative;
       cursor: pointer;
-      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
       box-shadow: 0 4px 6px rgba(0,0,0,0.3);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 0.5rem;
+      font-size: 0.55rem;
       color: transparent;
       user-select: none;
     }
     .seat::before {
       content: '';
       position: absolute;
-      top: -5px;
+      top: -4px;
       left: 10%;
       width: 80%;
-      height: 5px;
-      background-color: #3b4259;
-      border-radius: 3px 3px 0 0;
-      transition: all 0.3s ease;
+      height: 4px;
+      background-color: rgba(255, 255, 255, 0.1);
+      border-radius: 2px 2px 0 0;
+      transition: all 0.25s ease;
     }
     .seat:hover {
-      transform: translateY(-4px) scale(1.15);
-      background-color: #434c66;
-      box-shadow: 0 8px 12px rgba(0,0,0,0.5);
+      transform: translateY(-4px) scale(1.2);
+      box-shadow: 0 8px 15px rgba(229, 9, 20, 0.3);
       z-index: 10;
+      color: #fff;
     }
-    .seat:hover::before {
-      background-color: #556182;
+    .seat.standard {
+      background-color: #2b3040;
+      border-color: #3b4259;
+    }
+    .seat.premium {
+      background-color: #16324f;
+      border-color: #00f2fe;
+      box-shadow: 0 0 8px rgba(0, 242, 254, 0.2);
+    }
+    .seat.vip {
+      background-color: #4a3814;
+      border-color: #ffbe0b;
+      box-shadow: 0 0 8px rgba(255, 190, 11, 0.2);
     }
     .seat.selected {
-      background-color: #e50914;
-      color: white;
-      box-shadow: 0 0 15px rgba(229, 9, 20, 0.6);
-      transform: scale(1.1);
-    }
-    .seat.selected::before {
-      background-color: #ff3b45;
+      background-color: #e50914 !important;
+      border-color: #ff3b45 !important;
+      color: white !important;
+      box-shadow: 0 0 15px rgba(229, 9, 20, 0.8) !important;
+      transform: scale(1.15);
     }
     .seat.occupied {
-      background-color: #1a1c23;
-      cursor: not-allowed;
-      opacity: 0.6;
-    }
-    .seat.occupied::before {
-      background-color: #22252e;
+      background-color: #15161b !important;
+      border-color: #222 !important;
+      cursor: not-allowed !important;
+      opacity: 0.4 !important;
+      box-shadow: none !important;
     }
     .seat.occupied:hover {
-      transform: none;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-      z-index: 1;
+      transform: none !important;
+      box-shadow: none !important;
+      color: transparent !important;
     }
     
     /* RECLINER SEATS */
@@ -177,12 +186,12 @@
       position: relative;
     }
     .recliner-row::before {
-      content: 'ROYAL RECLINERS';
+      content: 'ROYAL VIP RECLINERS';
       position: absolute;
       top: 5px;
       left: 50%;
       transform: translateX(-50%);
-      color: #ffcc00;
+      color: #ffbe0b;
       font-size: 0.75rem;
       letter-spacing: 2px;
       font-weight: bold;
@@ -191,27 +200,19 @@
     .seat.recliner {
       width: 36px;
       height: 30px;
-      background-color: #4a3f24;
+      background-color: #4a3814;
+      border: 1px solid #ffbe0b;
       border-radius: 6px 6px 3px 3px;
     }
-    .seat.recliner::before {
-      height: 10px;
-      top: -10px;
-      background-color: #5c4e2c;
-      border-radius: 5px 5px 0 0;
-    }
     .seat.recliner.selected {
-      background-color: #ffcc00;
-      color: #000;
-      box-shadow: 0 0 20px rgba(255, 204, 0, 0.6);
-    }
-    .seat.recliner.selected::before {
-      background-color: #ffe066;
+      background-color: #e50914 !important;
+      border-color: #ffbe0b !important;
+      box-shadow: 0 0 20px rgba(229, 9, 20, 0.8) !important;
     }
     
     /* AISLE */
     .aisle {
-      width: 30px; /* Slightly wider aisle to break up large rows */
+      width: 30px;
     }
 
     /* LEGEND */
@@ -325,7 +326,13 @@
     <div class="movie-container">
         <h3 id="movieTitleDisplay">Movie Title</h3>
         <div class="movie-info">
-            <span id="theatreDisplay">Theatre Name</span> • <span id="timeDisplay">10:00 AM</span> • <strong id="screenTypeDisplay" class="text-danger">2D</strong>
+            <span id="theatreDisplay">Theatre Name</span> • <span id="screenDisplay" class="text-info fw-bold">Screen 1</span> • <span id="timeDisplay">10:00 AM</span> • <strong id="screenTypeDisplay" class="text-danger">2D</strong>
+        </div>
+        
+        <!-- Urgency Alert -->
+        <div class="alert alert-warning py-2 px-3 mt-3 mb-1 rounded-pill d-inline-flex align-items-center gap-2" style="font-size: 0.85rem; background: rgba(229, 9, 20, 0.15); border: 1px solid rgba(229, 9, 20, 0.4); color: #ff3b45;">
+            <i class="bi bi-lightning-charge-fill animate-pulse text-danger"></i>
+            <span class="fw-bold">Filling Fast! Only 14% seats available.</span>
         </div>
     </div>
 
@@ -336,18 +343,21 @@
     </div>
 
     <!-- Legend -->
-    <div class="legend">
+    <div class="legend flex-wrap" style="gap: 15px; padding: 12px 20px;">
         <div class="legend-item">
-            <div class="legend-seat available"></div> Available
+            <div class="legend-seat" style="background-color: #2b3040; border: 1px solid #3b4259;"></div> Silver
         </div>
         <div class="legend-item">
-            <div class="legend-seat selected"></div> Selected
+            <div class="legend-seat" style="background-color: #16324f; border: 1px solid #00f2fe; box-shadow: 0 0 5px rgba(0, 242, 254, 0.5);"></div> Gold
         </div>
         <div class="legend-item">
-            <div class="legend-seat occupied"></div> Occupied
+            <div class="legend-seat" style="background-color: #4a3814; border: 1px solid #ffbe0b; box-shadow: 0 0 5px rgba(255, 190, 11, 0.5);"></div> Royal VIP Recliner
         </div>
         <div class="legend-item">
-            <div class="legend-seat recliner"></div> Recliner
+            <div class="legend-seat" style="background-color: #e50914; border: 1px solid #ff3b45; box-shadow: 0 0 5px rgba(229, 9, 20, 0.8);"></div> Selected
+        </div>
+        <div class="legend-item">
+            <div class="legend-seat" style="background-color: #15161b; border: 1px solid #222; opacity: 0.4;"></div> Booked
         </div>
     </div>
 

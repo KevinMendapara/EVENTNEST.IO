@@ -10,6 +10,15 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
     
+    <!-- 
+    =========================================================================
+    SECURITY WARNING: Never perform payment verification or order creation 
+    using Stripe/Razorpay secret keys on the frontend. 
+    Publishable keys are safe for frontend use, but all private keys/secrets 
+    must run exclusively on backend proxy routes or serverless endpoints.
+    =========================================================================
+    -->
+    
     <!-- Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase_config.js"></script>
@@ -161,10 +170,37 @@
                 <span class="text-secondary">Average Price per Seat</span>
                 <span class="fw-bold text-white">Rs. <span id="pricePerSeat">0</span></span>
             </div>
+            <div class="d-flex justify-content-between mb-3 border-bottom border-secondary pb-3 d-none" id="addonsRow">
+                <span class="text-secondary">Add-ons Selected</span>
+                <span class="fw-bold text-white">Rs. <span id="addonsVal">0</span></span>
+            </div>
+            
+            <!-- Coupon Code Section -->
+            <div class="mb-3">
+                <label class="form-label text-secondary small fw-bold">PROMO CODE</label>
+                <div class="input-group">
+                    <input type="text" class="form-control py-2" id="couponInput" placeholder="Enter Coupon Code" style="background-color: #222; border-color: #444; border-radius: 8px 0 0 8px;">
+                    <button class="btn btn-danger" type="button" onclick="applyCoupon()" id="couponBtn" style="border-radius: 0 8px 8px 0; background-color: #E50914; border: none;">Apply</button>
+                </div>
+                <small class="form-text text-success d-none mt-1" id="couponSuccessMsg"></small>
+                <small class="form-text text-danger d-none mt-1" id="couponErrorMsg"></small>
+            </div>
+            <div class="d-flex justify-content-between mb-2 d-none" id="discountRow">
+                <span class="text-secondary text-success">Discount Applied</span>
+                <span class="fw-bold text-success">- Rs. <span id="discountVal">0</span></span>
+            </div>
+            
             <div class="d-flex justify-content-between align-items-center mt-2">
                 <span class="text-secondary">Total Amount</span>
                 <h4 class="mb-0 fw-bold text-danger">Rs. <span id="amount">0</span></h4>
             </div>
+        </div>
+
+        <!-- Billing Contact Email -->
+        <div class="mb-4" id="emailBillingSection">
+            <label class="form-label text-secondary small fw-bold">BILLING EMAIL (FOR CONFIRMATION)</label>
+            <input type="email" class="form-control" id="billingEmail" placeholder="name@example.com" required>
+            <span class="error" id="billingEmailError" style="color: #E50914; font-size: 0.85rem; margin-top: 5px; display: block;"></span>
         </div>
 
         <ul class="nav nav-pills nav-justified mb-4" id="paymentTabs" role="tablist">
@@ -237,7 +273,10 @@
 
     <script>
         // LOAD DATA
-        let amount = localStorage.getItem("amount") || "0";
+        let originalAmount = Number(localStorage.getItem("amount") || "0");
+        let amount = originalAmount;
+        let discount = 0;
+        let appliedCoupon = "";
         let seats = localStorage.getItem("seats");
         let seatCount = 0;
         
@@ -249,14 +288,42 @@
             }
         } catch(e) {}
 
-        let pricePerSeat = seatCount > 0 ? (Number(amount) / seatCount).toFixed(0) : 0;
+        let ticketTotal = Number(localStorage.getItem("cricketTicketTotal") || "0");
+        let pricePerSeat = 0;
+        if (ticketTotal > 0 && seatCount > 0) {
+            pricePerSeat = (ticketTotal / seatCount).toFixed(0);
+        } else {
+            pricePerSeat = seatCount > 0 ? (originalAmount / seatCount).toFixed(0) : 0;
+        }
 
         document.getElementById("amount").innerText = amount;
         document.getElementById("seats").innerText = seats || "None";
         document.getElementById("seatCount").innerText = seatCount;
         document.getElementById("pricePerSeat").innerText = pricePerSeat;
 
-        // QR
+        // Display Addons if present
+        const addonsRaw = localStorage.getItem("concertAddons") || localStorage.getItem("cricketAddons");
+        const addonsTotal = Number(localStorage.getItem("concertAddonsTotal") || localStorage.getItem("cricketAddonsTotal") || "0");
+        if (addonsRaw && addonsTotal > 0) {
+            const addonsValEl = document.getElementById("addonsVal");
+            const addonsRow = document.getElementById("addonsRow");
+            if (addonsValEl && addonsRow) {
+                addonsValEl.innerText = addonsTotal;
+                addonsRow.classList.remove("d-none");
+            }
+        }
+
+        // Pre-fill email if logged in
+        const loggedInUser = localStorage.getItem("loggedInUser");
+        const billingEmailInput = document.getElementById("billingEmail");
+        if (billingEmailInput) {
+            if (loggedInUser && loggedInUser !== "Guest") {
+                billingEmailInput.value = loggedInUser;
+                billingEmailInput.disabled = true;
+            }
+        }
+
+        // QR for scanning to pay
         QRCode.toCanvas(document.getElementById("qrCanvas"), "upi://pay?pa=eventbooking@upi&am=" + amount, { width: 200, margin: 1 });
 
         // TAB SWITCH
@@ -293,8 +360,146 @@
             return valid;
         }
 
+        function validateUPI() {
+            let upi = document.getElementById("upiId").value;
+            if (!upi.includes("@") || upi.length < 3) {
+                document.getElementById("upiError").innerText = "Please enter a valid UPI ID (e.g. name@upi)";
+                return false;
+            }
+            document.getElementById("upiError").innerText = "";
+            return true;
+        }
+
+        // COUPON SYSTEM
+        function applyCoupon() {
+            const input = document.getElementById("couponInput");
+            const code = input.value.trim().toUpperCase();
+            const successMsg = document.getElementById("couponSuccessMsg");
+            const errorMsg = document.getElementById("couponErrorMsg");
+            const discountRow = document.getElementById("discountRow");
+            const discountVal = document.getElementById("discountVal");
+            const amountEl = document.getElementById("amount");
+
+            // Reset messages
+            successMsg.classList.add("d-none");
+            errorMsg.classList.add("d-none");
+            discountRow.classList.add("d-none");
+
+            if (!code) {
+                errorMsg.innerText = "Please enter a coupon code.";
+                errorMsg.classList.remove("d-none");
+                return;
+            }
+
+            // Load unlocked coupons
+            let unlocked = JSON.parse(localStorage.getItem("unlockedCoupons")) || ["FIRSTBOOKING"];
+            // Also allow default offers
+            const generalCoupons = ["HDFC20", "B2G1FREE", "WELCOME200"];
+            
+            if (!unlocked.includes(code) && !generalCoupons.includes(code)) {
+                errorMsg.innerText = "Invalid or locked coupon code. Visit Rewards to unlock!";
+                errorMsg.classList.remove("d-none");
+                return;
+            }
+
+            // Determine event category
+            let eventCat = "Booking";
+            let cdStr = localStorage.getItem("concertData");
+            let movieStr = localStorage.getItem("movie");
+            let cricketStr = localStorage.getItem("cricketMatch");
+            let seminarStr = localStorage.getItem("currentSeminar");
+            let workshopStr = localStorage.getItem("currentWorkshop");
+
+            if (cdStr) eventCat = "Concert";
+            else if (movieStr) eventCat = "Movie";
+            else if (cricketStr) eventCat = "Cricket";
+            else if (seminarStr) eventCat = "Seminar";
+            else if (workshopStr) eventCat = "Workshop";
+
+            let currentDiscount = 0;
+
+            if (code === "FIRSTBOOKING" || code === "WELCOME200") {
+                if (originalAmount < 500) {
+                    errorMsg.innerText = "This coupon is only valid for orders above Rs. 500.";
+                    errorMsg.classList.remove("d-none");
+                    return;
+                }
+                currentDiscount = code === "FIRSTBOOKING" ? 100 : 200;
+            } else if (code === "WEEKEND20") {
+                const day = new Date().getDay(); // 0 is Sunday, 6 is Saturday
+                const isWeekend = (day === 0 || day === 6);
+                if (!isWeekend) {
+                    errorMsg.innerText = "This coupon is only valid on Saturdays and Sundays.";
+                    errorMsg.classList.remove("d-none");
+                    return;
+                }
+                currentDiscount = Math.min(300, Math.round(originalAmount * 0.20));
+            } else if (code === "MOVIE50") {
+                if (eventCat !== "Movie") {
+                    errorMsg.innerText = "This coupon is only valid for Movie bookings.";
+                    errorMsg.classList.remove("d-none");
+                    return;
+                }
+                currentDiscount = Math.min(originalAmount, 50);
+            } else if (code === "CONCERT10") {
+                if (eventCat !== "Concert") {
+                    errorMsg.innerText = "This coupon is only valid for Concert bookings.";
+                    errorMsg.classList.remove("d-none");
+                    return;
+                }
+                currentDiscount = Math.round(originalAmount * 0.10);
+            } else if (code === "HDFC20") {
+                if (eventCat !== "Concert" && eventCat !== "Seminar") {
+                    errorMsg.innerText = "This coupon is only valid for Concerts and Seminars.";
+                    errorMsg.classList.remove("d-none");
+                    return;
+                }
+                currentDiscount = Math.min(500, Math.round(originalAmount * 0.20));
+            } else if (code === "B2G1FREE") {
+                if (eventCat !== "Movie") {
+                    errorMsg.innerText = "This coupon is only valid for Movie bookings.";
+                    errorMsg.classList.remove("d-none");
+                    return;
+                }
+                if (seatCount < 3) {
+                    errorMsg.innerText = "Must select at least 3 seats to get 1 free.";
+                    errorMsg.classList.remove("d-none");
+                    return;
+                }
+                currentDiscount = Number(pricePerSeat);
+            }
+
+            discount = currentDiscount;
+            amount = originalAmount - discount;
+            appliedCoupon = code;
+
+            // Update UI
+            discountVal.innerText = discount;
+            discountRow.classList.remove("d-none");
+            amountEl.innerText = amount;
+            
+            // Save updated amount
+            localStorage.setItem("amount", amount);
+
+            successMsg.innerText = `Coupon ${code} applied! Discount: Rs. ${discount}`;
+            successMsg.classList.remove("d-none");
+
+            // Update QR code payment amount
+            QRCode.toCanvas(document.getElementById("qrCanvas"), "upi://pay?pa=eventbooking@upi&am=" + amount, { width: 200, margin: 1 });
+        }
+
         // PAYMENT
         function payNow() {
+            // Validate billing email first
+            const billingEmail = document.getElementById("billingEmail").value.trim();
+            const emailError = document.getElementById("billingEmailError");
+            if (!billingEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(billingEmail)) {
+                if (emailError) emailError.innerText = "Please enter a valid billing email address";
+                return;
+            } else {
+                if (emailError) emailError.innerText = "";
+            }
+
             let activeTab = document.querySelector(".nav-link.active").innerText.trim();
             let isValid = true;
 
@@ -308,45 +513,113 @@
             btn.disabled = true;
 
             setTimeout(() => {
-                let amount = localStorage.getItem("amount");
                 let seatsRaw = localStorage.getItem("seats");
-                let user = localStorage.getItem("loggedInUser") || "Guest";
+                let user = localStorage.getItem("loggedInUser");
+                if (!user || user === "Guest") {
+                    user = document.getElementById("billingEmail").value.trim();
+                }
                 
                 // Get event details
                 let eventTitle = "Event Ticket";
                 let eventCat = "Booking";
-                let eventImg = "https://via.placeholder.com/400x200";
+                let eventImg = "images/main_hero.png";
+                let eventDate = null;
+                let eventTime = null;
+                let venue = null;
                 
                 let cdStr = localStorage.getItem("concertData");
                 let movieStr = localStorage.getItem("movie");
                 let cricketStr = localStorage.getItem("cricketMatch");
+                let seminarStr = localStorage.getItem("currentSeminar");
+                let workshopStr = localStorage.getItem("currentWorkshop");
+
                 if (cdStr) {
                     let cd = JSON.parse(cdStr);
-                    eventTitle = cd.name || cd.title || eventTitle;
-                    eventCat = cd.category || "Live Event";
-                    eventImg = cd.img || cd.image || eventImg;
+                    eventTitle = cd.name || eventTitle;
+                    eventCat = "Concert";
+                    eventImg = cd.img || eventImg;
+                    eventDate = cd.date || null;
+                    eventTime = cd.time || null;
+                    venue = cd.venue || null;
                 } else if (movieStr) {
                     let mv = JSON.parse(movieStr);
-                    eventTitle = mv.title || eventTitle;
+                    eventTitle = mv.name || mv.title || eventTitle;
                     eventCat = "Movie";
-                    eventImg = mv.poster || mv.image || eventImg;
+                    eventImg = mv.img || mv.poster || eventImg;
+                    eventTime = localStorage.getItem("time") || null;
+                    venue = localStorage.getItem("theatre") || null;
                 } else if (cricketStr) {
                     let cr = JSON.parse(cricketStr);
                     eventTitle = cr.title || eventTitle;
                     eventCat = "Cricket Match";
                     eventImg = cr.team1Logo || eventImg;
+                    eventDate = cr.date || null;
+                    eventTime = cr.time || null;
+                    venue = cr.venue || null;
+                } else if (seminarStr) {
+                    let sm = JSON.parse(seminarStr);
+                    eventTitle = sm.title || eventTitle;
+                    eventCat = "Seminar";
+                    eventImg = sm.image || eventImg;
+                    eventDate = sm.date || null;
+                    eventTime = sm.time || null;
+                    venue = sm.venue || null;
+                } else if (workshopStr) {
+                    let wk = JSON.parse(workshopStr);
+                    eventTitle = wk.title || eventTitle;
+                    eventCat = "Workshop";
+                    eventImg = wk.image || eventImg;
+                    eventDate = wk.date || null;
+                    eventTime = wk.time || null;
+                    venue = wk.venue || null;
+                }
+
+                let addonsRaw = localStorage.getItem("concertAddons") || localStorage.getItem("cricketAddons");
+                
+                function generateBookingID(category) {
+                    const prefixMap = {
+                        "Movie": "MOV",
+                        "Concert": "CON",
+                        "Cricket Match": "CRI",
+                        "Cricket": "CRI",
+                        "Seminar": "SEM",
+                        "Workshop": "WRK"
+                    };
+                    const prefix = prefixMap[category] || "ORD";
+                    const now = new Date();
+                    const yyyy = now.getFullYear();
+                    const mm = String(now.getMonth() + 1).padStart(2, '0');
+                    const dd = String(now.getDate()).padStart(2, '0');
+                    const rand = Math.floor(1000 + Math.random() * 9000);
+                    return `${prefix}-BK-${yyyy}${mm}${dd}-${rand}`;
                 }
 
                 let order = {
-                    id: "ORD" + Math.floor(100000 + Math.random() * 900000),
+                    id: generateBookingID(eventCat),
                     user: user,
                     title: eventTitle,
                     category: eventCat,
                     image: eventImg,
                     seats: seatsRaw,
                     amount: amount,
-                    date: new Date().toLocaleString()
+                    date: new Date().toLocaleString(),
+                    eventDate: eventDate,
+                    eventTime: eventTime,
+                    venue: venue,
+                    coupon: appliedCoupon || null,
+                    addons: addonsRaw ? JSON.parse(addonsRaw) : null,
+                    theatre: eventCat === "Movie" ? (localStorage.getItem("theatre") || null) : null,
+                    screen: eventCat === "Movie" ? (localStorage.getItem("screen") || null) : null,
+                    time: eventCat === "Movie" ? (localStorage.getItem("time") || null) : null,
+                    format: eventCat === "Movie" ? (localStorage.getItem("format") || localStorage.getItem("screenType") || null) : null
                 };
+
+                // Award Points (+50 points)
+                let pts = localStorage.getItem("rewardPoints");
+                if (pts === null) pts = 150;
+                else pts = parseInt(pts);
+                pts += 50;
+                localStorage.setItem("rewardPoints", pts);
 
                 if (typeof supabaseClient !== 'undefined' && !SUPABASE_URL.includes('YOUR-PROJECT-ID')) {
                     supabaseClient.from('orders').insert([order]).then(({data, error}) => {
@@ -361,40 +634,10 @@
                 }
 
                 function showSuccessUI() {
-                    // SHOW SUCCESS UI
-                    document.getElementById("paymentForm").style.display = "none";
-                    document.getElementById("successBox").style.display = "block";
+                    // Redirect to success.html
+                    window.location.href = "success.html";
                 }
             }, 2000);
-        }
-
-        function downloadTicket() {
-            let rawSeats = localStorage.getItem("seats");
-            let seatsList = rawSeats;
-            try {
-                let parsed = JSON.parse(rawSeats);
-                if(Array.isArray(parsed)) seatsList = parsed.join(", ");
-            } catch(e) {}
-            
-            let amt = localStorage.getItem("amount");
-
-            let content = `
-=================================
-      🎟️ EVENT TICKET 🎟️      
-=================================
-Status:    CONFIRMED
-Seats:     ${seatsList}
-Amount:    Rs. ${amt}
-Date:      ${new Date().toLocaleDateString()}
-=================================
-Enjoy the show!
-            `;
-
-            let blob = new Blob([content], { type: "text/plain" });
-            let a = document.createElement("a");
-            a.href = URL.createObjectURL(blob);
-            a.download = "Event_Ticket.txt";
-            a.click();
         }
     </script>
 </body>

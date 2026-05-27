@@ -1,388 +1,811 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta name="referrer" content="no-referrer-when-downgrade">
-  <title>Concert Details</title>
-  
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="concert.css">
-  <link rel="stylesheet" href="concert.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Concert Details | EventNest</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="concert.css">
+    <script src="api_config.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Oswald:wght@700&display=swap');
+        
+        body {
+            background-color: #0b0713;
+            color: #ffffff;
+            font-family: 'DM Sans', sans-serif;
+            margin: 0;
+            padding-top: 80px;
+            overflow-x: hidden;
+        }
+
+        /* Navbar */
+        .navbar {
+            background: rgba(11, 7, 19, 0.9) !important;
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(177, 34, 229, 0.15);
+            padding: 15px 30px;
+        }
+
+        /* Giant Hero section */
+        .hero-concert-details {
+            position: relative;
+            height: 60vh;
+            min-height: 400px;
+            background-size: cover;
+            background-position: center 25%;
+            display: flex;
+            align-items: flex-end;
+            border-bottom: 2px solid #b122e5;
+            box-shadow: 0 10px 45px rgba(177, 34, 229, 0.3);
+        }
+
+        .hero-details-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to right, rgba(11, 7, 19, 0.95) 0%, rgba(11, 7, 19, 0.6) 45%, transparent 100%),
+                        linear-gradient(to top, #0b0713 0%, transparent 50%);
+            z-index: 1;
+        }
+
+        .hero-details-content {
+            position: relative;
+            z-index: 2;
+            padding: 0 6% 40px 6%;
+            width: 100%;
+        }
+
+        .artist-details-title {
+            font-family: 'Oswald', sans-serif;
+            font-size: 4rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 25px rgba(177, 34, 229, 0.7);
+            margin: 0 0 5px 0;
+        }
+
+        .tour-details-subtitle {
+            font-size: 1.4rem;
+            color: #b122e5;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        /* Detail Cards */
+        .detail-meta-box {
+            background: rgba(18, 11, 34, 0.75);
+            border: 1px solid rgba(177, 34, 229, 0.15);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Tickers */
+        .countdown-ticker {
+            background: linear-gradient(135deg, rgba(255, 42, 95, 0.15) 0%, rgba(177, 34, 229, 0.15) 100%);
+            border: 1px solid rgba(255, 42, 95, 0.3);
+            border-radius: 12px;
+            box-shadow: 0 0 15px rgba(255, 42, 95, 0.1);
+        }
+
+        .countdown-time {
+            font-family: 'Oswald', sans-serif;
+            font-size: 1.6rem;
+            color: #ff2a5f;
+            letter-spacing: 1px;
+        }
+
+        /* Selections */
+        .zones-booking-panel {
+            background: #120b22;
+            border: 1px solid rgba(177, 34, 229, 0.2);
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .venue-rules-list li {
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+            color: #ccc;
+        }
+
+        .prohibited-badge {
+            background: rgba(255, 42, 95, 0.1);
+            color: #ff2a5f;
+            border: 1px solid rgba(255, 42, 95, 0.25);
+            font-size: 0.75rem;
+            border-radius: 20px;
+            padding: 4px 10px;
+        }
+    </style>
 </head>
 <body>
 
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark fixed-top" style="background: rgba(0,0,0,0.8) !important; backdrop-filter: blur(10px);">
-        <div class="container">
-            <a class="navbar-brand fw-bold" href="index.html">Event Booking</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menu">
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+        <div class="container-fluid px-4">
+            <a class="navbar-brand fw-bold" href="index.html">Event<span style="color:#b122e5">Nest</span></a>
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#menu">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="menu">
-                <div class="d-flex align-items-center ms-auto">
-                    <!-- SEARCH BAR -->
-                    <form class="d-flex me-3">
-                        <input class="form-control me-2" type="search" placeholder="Search events or movies" id="searchInput">
-                        <button class="btn btn-warning" type="button" onclick="searchEvent()">
-                            <i class="bi bi-search"></i>
-                        </button>
-                    </form>
-                    <!-- CITY SELECT -->
-                    <select class="form-select me-3" style="width:180px;" id="citySelect">
-                        <option selected>📍 Select City</option>
-                        <option>Mumbai</option>
-                        <option>Delhi</option>
-                        <option>Bangalore</option>
-                    </select>
-                    <ul class="navbar-nav ms-auto">
-                        <li class="nav-item"><a href="index.html" class="nav-link">Home</a></li>
-                        <li class="nav-item"><a href="concerts.html" class="nav-link">Events</a></li>
-                    </ul>
-                </div>
+                <ul class="navbar-nav ms-auto align-items-center gap-3">
+                    <li class="nav-item"><a href="index.html" class="nav-link text-white-50">Home</a></li>
+                    <li class="nav-item"><a href="concerts.html" class="nav-link text-white-50">Concerts</a></li>
+                    <li class="nav-item"><a href="movies.html" class="nav-link text-white-50">Movies</a></li>
+                    <li class="nav-item"><a href="cricket.html" class="nav-link text-white-50">Cricket</a></li>
+                </ul>
             </div>
         </div>
     </nav>
 
-  <div class="container" style="margin-top: 100px;">
-    <!-- Normal Sized Hero -->
-    <div id="heroBanner" class="hero-banner-normal mb-5 shadow-lg">
-      <div class="hero-overlay-normal">
-        <div class="hero-content p-4 ms-md-4">
-          <h1 id="title" class="display-4 fw-bold text-white mb-3"></h1>
-          <p class="lead text-white mb-2"><i class="bi bi-geo-alt-fill text-danger me-2"></i><span id="location"></span></p>
-          <p class="text-light mb-2"><i class="bi bi-calendar-event text-danger me-2"></i><span id="eventDate"></span></p>
-          <p class="text-light"><i class="bi bi-clock-fill text-danger me-2"></i><span id="eventTime"></span></p>
+    <!-- Hero details header -->
+    <div class="hero-concert-details" id="concertDetailsBg" style="background-image: url('images/c_hero.jpg');">
+        <div class="hero-details-overlay"></div>
+        <div class="hero-details-content">
+            <span class="badge bg-danger rounded-pill px-3 py-1.5 fw-bold mb-3" id="detailsAgeBadge" style="font-size:0.8rem; background: #ff2a5f !important; border: 1px solid rgba(255,42,95,0.4);"><i class="bi bi-shield-fill-check me-1"></i>All Ages</span>
+            <h1 class="artist-details-title" id="detailsArtistName">Artist Name</h1>
+            <div class="tour-details-subtitle" id="detailsTourName">Tour Name</div>
+            
+            <div class="d-flex flex-wrap gap-4 text-light small fw-bold" style="text-shadow: 1px 1px 4px rgba(0,0,0,0.8);">
+                <span><i class="bi bi-music-note me-1.5 text-info"></i><span id="detailsGenre">Genre</span></span>
+                <span><i class="bi bi-geo-alt-fill me-1.5 text-danger"></i><span id="detailsVenue">Venue</span></span>
+                <span><i class="bi bi-star-fill me-1.5 text-warning"></i>Rating: <span id="detailsRating">4.8</span>/5</span>
+            </div>
         </div>
-      </div>
     </div>
 
-    <!-- Artist Bio Section (Loaded dynamically from Last.fm API) -->
-    <div id="artistBioPanel" class="p-4 mb-5 rounded-4 d-none" style="background: #141414; border: 1px solid #333; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
-        <h4 class="text-white fw-bold mb-3"><i class="bi bi-person-badge-fill text-danger me-2"></i>About the Artist</h4>
-        <p id="artistBioText" class="text-light mb-0" style="font-size: 1rem; line-height: 1.6; font-style: italic;"></p>
+    <!-- Main Grid Content -->
+    <div class="container my-5">
+        <div class="row g-4">
+            
+            <!-- Left Side Details & Booking -->
+            <div class="col-lg-8">
+                
+                <!-- Countdown Ticker & Preview Column -->
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <div class="countdown-ticker p-3 d-flex align-items-center justify-content-between h-100">
+                            <div>
+                                <small class="text-secondary d-block text-uppercase fw-bold" style="font-size:0.7rem; letter-spacing:1px;">SHOW TIMING COUNTDOWN</small>
+                                <span class="countdown-time" id="countdownDisplay">Calculating...</span>
+                            </div>
+                            <div class="fs-1 text-danger animate-pulse" style="color: #ff2a5f !important;"><i class="bi bi-hourglass-split"></i></div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <!-- Dynamic Weather Widget (Outdoor Concert) -->
+                        <div id="weatherWidget" class="d-flex align-items-center justify-content-between p-3 rounded-3 h-100" style="background: rgba(18, 11, 34, 0.75); border: 1px solid rgba(177, 34, 229, 0.15);">
+                            <div class="d-flex align-items-center gap-2">
+                                <img id="weatherIcon" src="" alt="Weather" style="width: 42px; height: 42px; display: none;">
+                                <div>
+                                    <span class="text-white fw-bold d-block" id="weatherTemp">--°C</span>
+                                    <small class="text-secondary" id="weatherDesc">Loading local weather...</small>
+                                </div>
+                            </div>
+                            <div class="text-end text-white-50" style="font-size: 0.75rem;">
+                                <span class="d-block"><i class="bi bi-droplet text-info me-1"></i>Hum: <strong class="text-white" id="weatherHumidity">--%</strong></span>
+                                <span><i class="bi bi-wind text-light me-1"></i>Wind: <strong class="text-white" id="weatherWind">-- m/s</strong></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Artist Profile Bio -->
+                <div class="detail-meta-box p-4 mb-4" id="artistBioPanel">
+                    <h5 class="fw-bold text-white mb-3 d-flex align-items-center">
+                        <i class="bi bi-person-badge-fill text-danger me-2" style="color:#b122e5 !important;"></i> About The Artist
+                    </h5>
+                    <p class="text-white-50 mb-0" id="artistBioText" style="line-height:1.6; font-style:italic;">Loading artist details...</p>
+                </div>
+
+                <!-- Booking Zones & Stage UI Panel -->
+                <div class="zones-booking-panel p-4 mb-5" id="ticketingSection">
+                    <h4 class="fw-bold text-white text-center mb-4 text-uppercase" style="letter-spacing:1px;"><i class="bi bi-ticket-perforated text-danger me-2" style="color:#ff2a5f !important;"></i> Reserve Concert Tickets</h4>
+                    
+                    <!-- Timer -->
+                    <div id="bookingTimer" class="alert alert-warning text-center fw-bold py-2 rounded-pill mb-4" style="background: rgba(255, 190, 11, 0.15); border:1px solid rgba(255,190,11,0.3); color:#ffbe0b;">
+                        ⏳ Time Left to Complete Selection: 10:00
+                    </div>
+
+                    <!-- Visual Stage / Zone Map UI -->
+                    <h5 class="text-secondary small fw-bold mb-3 text-uppercase text-center" style="letter-spacing:2px;">CONCERT ARENA MAP (TAP TO SELECT)</h5>
+                    <div class="zone-map-container mb-4">
+                        <div class="visual-stage">STAGE</div>
+                        
+                        <div class="visual-zones-grid mt-4">
+                            <div class="visual-zone-block zone-backstage" id="map-backstage" onclick="selectZone('backstage')">
+                                Backstage Access Pass
+                            </div>
+                            <div class="visual-zone-block zone-fanpit" id="map-fanpit" onclick="selectZone('fanpit')">
+                                Fan Pit (Standing VIP)
+                            </div>
+                            <div class="visual-zone-block zone-vip" id="map-vip" onclick="selectZone('vip')">
+                                VIP Lounge (Elevated Seating)
+                            </div>
+                            <div class="visual-zone-block zone-couple" id="map-couple" onclick="selectZone('couple')">
+                                Couple Premium Stand
+                            </div>
+                            <div class="visual-zone-block zone-general" id="map-general" onclick="selectZone('general')">
+                                General Standing Admission
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Zone Legend & Selectors -->
+                    <div class="d-flex flex-column gap-3 mb-4" id="zoneList">
+                        <!-- Populated by JS -->
+                    </div>
+
+                    <!-- Add-ons Section -->
+                    <h4 class="fw-bold text-white border-top border-secondary pt-4 mt-4 mb-3 text-center text-uppercase" style="letter-spacing:1px;"><i class="bi bi-gift text-warning me-2"></i> Enhance Your Experience (Optional Add-ons)</h4>
+                    <div class="d-flex flex-column gap-2 mb-4" id="addonList">
+                        <!-- Populated by JS -->
+                    </div>
+
+                    <!-- Checkout & Booking Summary -->
+                    <div class="p-4 rounded-3 mb-4 d-flex flex-column flex-md-row justify-content-between align-items-center" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(177,34,229,0.25);">
+                        <div class="text-center text-md-start mb-3 mb-md-0">
+                            <h6 class="text-secondary mb-1">SELECTED TIER</h6>
+                            <h4 class="text-white mb-1 fw-bold" id="checkoutZoneText">None Selected</h4>
+                            <span class="text-white-50 small" id="checkoutAddonsSummary">Add-ons: None</span>
+                        </div>
+                        <div class="text-center text-md-end">
+                            <h6 class="text-secondary mb-1">GRAND TOTAL</h6>
+                            <h3 class="text-success fw-extrabold mb-0" style="font-size: 2.1rem;">₹<span id="grandTotalText">0</span></h3>
+                        </div>
+                    </div>
+
+                    <button id="bookBtn" onclick="checkoutConcert()" class="btn glowing-btn-concert btn-lg w-100 py-3 fw-bold text-uppercase" style="letter-spacing:1px;" disabled>
+                        Confirm Booking & Pay <i class="bi bi-arrow-right ms-2"></i>
+                    </button>
+                </div>
+
+            </div>
+
+            <!-- Right Side Sidebar Info -->
+            <div class="col-lg-4">
+                
+                <!-- Music Preview Column -->
+                <div class="detail-meta-box p-4 mb-4">
+                    <h5 class="fw-bold text-white mb-3"><i class="bi bi-youtube text-danger me-2"></i> Track Preview</h5>
+                    <div id="mediaPreviewContainer">
+                        <!-- Embedded Preview Frame or placeholder -->
+                        <div class="ratio ratio-16x9 rounded-3 overflow-hidden" style="border: 1px solid rgba(255,255,255,0.1);" id="mediaPreviewFrame">
+                            <iframe src="" title="YouTube Video" allowfullscreen style="border:0;"></iframe>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Event Details Card -->
+                <div class="detail-meta-box p-4 mb-4">
+                    <h5 class="fw-bold text-white mb-3 border-bottom border-secondary pb-2"><i class="bi bi-clock-fill text-danger me-2" style="color:#b122e5 !important;"></i> Showtimes</h5>
+                    
+                    <div class="mb-3">
+                        <span class="text-secondary small d-block">CONCERT DATE</span>
+                        <span class="text-white fw-bold" id="sidebarDate">-- -- --</span>
+                    </div>
+                    <div class="mb-3">
+                        <span class="text-secondary small d-block">SHOWTIME</span>
+                        <span class="text-white fw-bold" id="sidebarTime">--:-- --</span>
+                    </div>
+                    <div class="mb-3">
+                        <span class="text-secondary small d-block">VENUE STADIUM</span>
+                        <span class="text-white fw-bold" id="sidebarVenue">-- --</span>
+                    </div>
+                    <div class="mb-3">
+                        <span class="text-secondary small d-block">GATE OPENS</span>
+                        <span class="text-info fw-bold" id="sidebarGate">5:00 PM (2 hours prior)</span>
+                    </div>
+                    <div class="mb-3">
+                        <span class="text-secondary small d-block">OPENING ACT / LINEUP</span>
+                        <span class="text-warning fw-bold" id="sidebarLineup">Local Openers & Support DJs</span>
+                    </div>
+                </div>
+
+                <!-- Venue Rules and Prohibited Items -->
+                <div class="detail-meta-box p-4 mb-4">
+                    <h5 class="fw-bold text-white mb-3 border-bottom border-secondary pb-2"><i class="bi bi-exclamation-triangle-fill text-warning me-2"></i> Venue Guidelines</h5>
+                    
+                    <div class="mb-3">
+                        <span class="text-secondary small d-block mb-1">PROHIBITED ITEMS</span>
+                        <div class="d-flex flex-wrap gap-1.5">
+                            <span class="prohibited-badge"><i class="bi bi-x-circle-fill me-1"></i> Weapons</span>
+                            <span class="prohibited-badge"><i class="bi bi-x-circle-fill me-1"></i> Cameras</span>
+                            <span class="prohibited-badge"><i class="bi bi-x-circle-fill me-1"></i> Bags</span>
+                            <span class="prohibited-badge"><i class="bi bi-x-circle-fill me-1"></i> Food/Drinks</span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <span class="text-secondary small d-block">PARKING INSTRUCTIONS</span>
+                        <p class="text-white-50 small mb-0 lh-sm">Multi-level paid parking available at venue. Valet parking included with VIP and Backstage tickets.</p>
+                    </div>
+
+                    <div>
+                        <span class="text-secondary small d-block">SECURITY RULES</span>
+                        <p class="text-white-50 small mb-0 lh-sm">Re-entry not allowed. Carry valid government ID matching the ticket username.</p>
+                    </div>
+                </div>
+
+                <!-- Google Maps Embed -->
+                <div class="detail-meta-box p-4" id="mapSection">
+                    <h5 class="fw-bold text-white mb-3"><i class="bi bi-map text-danger me-2" style="color:#b122e5 !important;"></i> Venue Directions</h5>
+                    <div class="ratio ratio-4x3 rounded-3 overflow-hidden mb-3" style="border: 1px solid rgba(255,255,255,0.05); height: 200px;">
+                        <iframe id="mapIframe" src="" allowfullscreen loading="lazy" style="border: 0;"></iframe>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <span class="text-white-50 small text-truncate" id="mapAddressText" style="max-width: 180px;">Loading address...</span>
+                        <a href="" target="_blank" id="directionsLink" class="btn btn-outline-info btn-sm rounded-pill px-3" style="font-size:0.75rem;"><i class="bi bi-geo me-1"></i> Get Directions</a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- You Might Also Like Section -->
+        <div class="detail-meta-box p-4 mt-5">
+            <h4 class="fw-bold text-white mb-4"><i class="bi bi-music-note-beamed text-danger me-2" style="color:#ff2a5f !important;"></i> You Might Also Like</h4>
+            <div id="moreSingersList" class="row g-3">
+                <!-- Loaded dynamically -->
+            </div>
+        </div>
     </div>
 
-    <!-- Seat Selection -->
-    <div class="seat-selection-panel p-5 mb-5 rounded-4" style="background: #141414; border: 1px solid #333; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
-        
-        <div class="stage-container mb-5">
-            <div class="stage-curve"></div>
-            <div class="stage-text text-secondary text-center mt-3 text-uppercase fw-bold" style="letter-spacing: 4px; font-size: 0.85rem;">Stage</div>
-        </div>
-
-        <div id="timer" class="text-warning text-center fw-bold fs-5 mb-2">⏳ Time Left: 5:00</div>
-        <h3 class="text-white text-center fw-bold mb-4">Select Your Seats</h3>
-
-        <!-- LEGEND -->
-        <div class="legend d-flex justify-content-center gap-4 mb-5 flex-wrap">
-          <div class="d-flex align-items-center gap-2"><span class="box available" style="background:#555;"></span> <span class="text-light">Available</span></div>
-          <div class="d-flex align-items-center gap-2"><span class="box selected" style="background:#fff;"></span> <span class="text-light">Selected</span></div>
-          <div class="d-flex align-items-center gap-2"><span class="box booked" style="background:#2b2b2b;"></span> <span class="text-light">Booked</span></div>
-          <div class="d-flex align-items-center gap-2"><span class="box vip" style="background:#E50914;"></span> <span class="text-light">VIP</span></div>
-          <div class="d-flex align-items-center gap-2"><span class="box gold" style="background:#f5b52a;"></span> <span class="text-light">Gold</span></div>
-          <div class="d-flex align-items-center gap-2"><span class="box silver" style="background:#555;"></span> <span class="text-light">Silver</span></div>
-        </div>
-
-        <div class="ground-wrapper text-center w-100 overflow-auto mb-5">
-            <div id="groundLayout" class="ground-layout d-flex flex-column align-items-center mx-auto" style="min-width: 700px;"></div>
-        </div>
-        
-        <div class="booking-summary p-4 rounded-3 mb-4 d-flex flex-column flex-md-row justify-content-between align-items-center" style="background: rgba(255,255,255,0.05); border: 1px solid #333;">
-          <div class="text-center text-md-start mb-3 mb-md-0">
-            <h5 class="text-secondary mb-1">Selected Seats (<span id="seatCount">0</span>)</h5>
-            <h4 class="text-white mb-0" id="selectedSeats">None</h4>
-          </div>
-          <div class="text-center text-md-end">
-            <h5 class="text-secondary mb-1">Total Amount</h5>
-            <h3 class="text-white fw-bold mb-0">Rs. <span id="total">0</span></h3>
-          </div>
-        </div>
-
-        <div class="d-flex flex-column flex-md-row gap-3">
-          <button onclick="selectBestSeats()" class="btn btn-outline-light btn-lg flex-grow-1 py-3 border-secondary">
-            Auto Select Best Seats <i class="bi bi-magic ms-2"></i>
-          </button>
-          <button onclick="goToPayment()" id="proceedBtn" class="btn btn-danger btn-lg flex-grow-1 fw-bold py-3" style="background-color: #E50914;">
-            Proceed to Payment <i class="bi bi-arrow-right ms-2"></i>
-          </button>
-        </div>
-
-      </div>
-    </div>
+    <!-- Script Block & Bootstrap Bundle -->
+    <script src="concerts.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     
-    <!-- More Singers Section -->
-    <div class="more-singers-section mt-5 p-5 rounded-4" style="background: #141414; border: 1px solid #333; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
-        <h3 class="text-white fw-bold mb-4"><i class="bi bi-music-note-beamed text-danger me-2"></i>You Might Also Like</h3>
-        <div id="moreSingersList" class="row g-4"></div>
-    </div>
-  </div>
-
-  <!-- FOOTER -->
-  <footer class="bg-dark text-white text-center py-4 mt-5 border-top border-secondary">
-    <p class="mb-0">© 2026 EventBook | Online Ticket Booking System</p>
-  </footer>
-
-  <script src="concerts.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
-  <script>
-    // ================= LOAD DATA =================
-    let data = JSON.parse(localStorage.getItem("concertData"));
-    if (data) {
-      document.getElementById("title").innerText = data.name + " Live";
-      document.getElementById("location").innerText = (data.venue ? data.venue + ", " : "") + data.city;
-      document.getElementById("eventDate").innerText = data.date || "TBD";
-      document.getElementById("eventTime").innerText = data.time || "TBD";
-      let heroBanner = document.getElementById("heroBanner");
-      
-      // Programmatic Image Preloader for resilient background assignment
-      const mainImg = new Image();
-      mainImg.onload = function() {
-        heroBanner.style.backgroundImage = `url('${data.img}')`;
-      };
-      mainImg.onerror = function() {
-        console.warn("Failed to load concert details banner image, falling back to images/c_hero.jpg");
-        heroBanner.style.backgroundImage = "url('images/c_hero.jpg')";
-      };
-      mainImg.src = data.img;
-
-      // Fetch Artist Bio dynamically from Last.fm API
-      if (data.name) {
-        const apiKey = 'f41b44e21e1a1f08b9f1549c5fe45ece';
-        const url = `https://ws.audioscrobbler.com/2.0/?method=artist.getinfo&artist=${encodeURIComponent(data.name)}&api_key=${apiKey}&format=json`;
+    <script>
+        // ================= CONCERT DETAILS & BOOKING SCRIPT =================
+        let selectedZoneId = null;
+        let selectedQty = 0;
+        let selectedPrice = 0;
+        let addonQuantities = {};
         
-        fetch(url)
-          .then(res => res.json())
-          .then(resData => {
-            if (resData && resData.artist && resData.artist.bio && resData.artist.bio.summary) {
-              let bioText = resData.artist.bio.summary;
-              const linkIndex = bioText.indexOf('<a href=');
-              if (linkIndex !== -1) {
-                bioText = bioText.substring(0, linkIndex);
-              }
-              if (bioText.trim() !== "") {
-                document.getElementById("artistBioText").innerHTML = bioText.trim();
-                document.getElementById("artistBioPanel").classList.remove("d-none");
-              }
+        const data = JSON.parse(localStorage.getItem("concertData"));
+        
+        const zoneTiers = {
+            "general": { name: "General Admission", description: "Standing admission with excellent acoustics.", priceOffset: 0, capacity: "Available" },
+            "couple": { name: "Couple Standing", description: "Entry for two. Save money on couple tickets.", priceOffset: 0.8, isMultiplier: true, capacity: "Available" },
+            "vip": { name: "VIP Lounge", description: "Elevated seat with premium bar access & 1 complimentary drink.", priceOffset: 500, capacity: "12% left! (Almost Full)" },
+            "fanpit": { name: "Fan Pit", description: "Get right up close! Standing zone directly at stage barricade.", priceOffset: 1000, capacity: "34 tickets left!" },
+            "backstage": { name: "Backstage Pass", description: "Meet & Greet the artist, official merch, and lounge buffet.", priceOffset: 2500, capacity: "Only 4 passes left!" }
+        };
+
+        const addOnsList = [
+            { id: "tshirt", name: "Official Tour T-Shirt", price: 499, icon: "bi-tag" },
+            { id: "poster", name: "Autographed Souvenir Poster", price: 199, icon: "bi-image" },
+            { id: "lightband", name: "LED Interactive Wristband", price: 99, icon: "bi-brightness-high" },
+            { id: "parking", name: "VIP Multi-Level Parking Pass", price: 250, icon: "bi-p-circle" },
+            { id: "foodcombo", name: "Premium Popcorn & Soda Combo", price: 299, icon: "bi-cup-straw" }
+        ];
+
+        document.addEventListener("DOMContentLoaded", () => {
+            if (!data) {
+                window.location.href = "concerts.html";
+                return;
             }
-          })
-          .catch(err => console.warn("Failed to load artist details from Last.fm:", err));
-      }
-    } else {
-      window.location.href = "index.html";
-    }
 
-    let basePrice = data ? Number(data.price) : 500;
+            // Bind metadata to page
+            document.getElementById("detailsArtistName").innerText = data.name;
+            document.getElementById("detailsTourName").innerText = data.tourName || `${data.name} Live Tour`;
+            document.getElementById("detailsGenre").innerText = data.genre || "Live Concert";
+            document.getElementById("detailsVenue").innerText = `${data.venue}, ${data.city}`;
+            document.getElementById("detailsRating").innerText = data.rating ? data.rating.toFixed(1) : "4.8";
+            document.getElementById("detailsAgeBadge").innerText = `${data.age || 'All Ages'} Restriction`;
+            
+            document.getElementById("sidebarDate").innerText = data.date;
+            document.getElementById("sidebarTime").innerText = data.time;
+            document.getElementById("sidebarVenue").innerText = `${data.venue}, ${data.city}`;
+            
+            const mainImgUrl = data.img || "images/c_hero.jpg";
+            const detailsHeaderBg = document.getElementById("concertDetailsBg");
+            if (detailsHeaderBg) {
+                detailsHeaderBg.style.backgroundImage = `url('${mainImgUrl}')`;
+            }
 
-    // ================= SEAT SYSTEM =================
-    let selected = [];
-    let groundLayout = document.getElementById("groundLayout");
-    let bookedSeats = JSON.parse(localStorage.getItem("bookedSeats")) || [];
+            // Populate opening acts and lineups based on artist
+            const openings = {
+                "Arijit Singh": "Opening Set by DJ Chetas & Supporting Vocalists",
+                "Neha Kakkar": "Opener: Tony Kakkar Live Special Set",
+                "Badshah": "Support Acts: Aastha Gill & Kr$na Live Rap Session",
+                "Yo Yo Honey Singh": "Opener: Alfaaz & J Star Punjabi Special Hit Mix",
+                "Shreya Ghoshal": "Classical Instrumental Opening Orchestra"
+            };
+            document.getElementById("sidebarLineup").innerText = openings[data.name] || "Opening DJ Set & Supporting Instrumentalists";
 
-    let arena = [
-      { id: "vip-pit", name: "VIP Pit", type: "vip", price: basePrice + 500, seatsPerRow: [10, 12, 14], colorClass: "text-danger" },
-      { type: "split", items: [
-          { id: "gold-left", name: "Gold Stand (L)", type: "gold", price: basePrice + 200, seatsPerRow: [6, 7, 8, 9], colorClass: "text-warning" },
-          { id: "gold-right", name: "Gold Stand (R)", type: "gold", price: basePrice + 200, seatsPerRow: [6, 7, 8, 9], colorClass: "text-warning" }
-      ]},
-      { id: "silver-rear", name: "Silver Balcony", type: "silver", price: basePrice, seatsPerRow: [18, 20, 22, 24], colorClass: "text-secondary" }
-    ];
+            // Load Weather Widget
+            const hasWeatherProxy = window.API_CONFIG && !!API_CONFIG.BACKEND_API_URL;
+            const hasWeatherDirect = window.API_CONFIG && !!API_CONFIG.OPENWEATHERMAP_API_KEY;
+            if ((hasWeatherProxy || hasWeatherDirect) && data.city) {
+                const weatherUrl = hasWeatherProxy
+                    ? `${API_CONFIG.BACKEND_API_URL}/api/weather?city=${encodeURIComponent(data.city)}`
+                    : `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(data.city)}&units=metric&appid=${API_CONFIG.OPENWEATHERMAP_API_KEY}`;
+                fetch(weatherUrl)
+                    .then(res => res.ok ? res.json() : null)
+                    .then(wdata => {
+                        if (wdata && wdata.main) {
+                            document.getElementById("weatherTemp").innerText = `${Math.round(wdata.main.temp)}°C`;
+                            if (wdata.weather && wdata.weather[0]) {
+                                document.getElementById("weatherDesc").innerText = wdata.weather[0].description;
+                                const iconEl = document.getElementById("weatherIcon");
+                                iconEl.src = `https://openweathermap.org/img/wn/${wdata.weather[0].icon}@2x.png`;
+                                iconEl.style.display = "block";
+                            }
+                            document.getElementById("weatherHumidity").innerText = `${wdata.main.humidity}%`;
+                            document.getElementById("weatherWind").innerText = `${wdata.wind.speed} m/s`;
+                        }
+                    })
+                    .catch(e => console.warn("Failed to load OpenWeatherMap forecast details:", e));
+            }
 
-    function createSeat(info, seatNumber) {
-        let seat = document.createElement("div");
-        seat.classList.add("seat", info.type);
-        seat.innerText = seatNumber.replace(/[^0-9]/g, ''); // Number only
-        seat.title = `${info.name} - Seat ${seatNumber} - Rs. ${info.price}`;
+            // Load Google Maps Embed directions
+            const query = `${data.venue}, ${data.city}`;
+            document.getElementById("mapAddressText").innerText = query;
+            const mapIframe = document.getElementById("mapIframe");
+            if (window.API_CONFIG && API_CONFIG.GOOGLE_MAPS_API_KEY) {
+                mapIframe.src = `https://www.google.com/maps/embed/v1/place?key=${API_CONFIG.GOOGLE_MAPS_API_KEY}&q=${encodeURIComponent(query)}`;
+            } else {
+                mapIframe.src = `https://maps.google.com/maps?q=${encodeURIComponent(query)}&t=&z=14&ie=UTF8&iwloc=&output=embed`;
+            }
+            document.getElementById("directionsLink").href = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(query)}`;
 
-        if (bookedSeats.includes(seatNumber)) {
-          seat.classList.add("booked");
+            // Load YouTube Media Preview
+            const previewContainer = document.getElementById("mediaPreviewContainer");
+            const previewFrame = document.getElementById("mediaPreviewFrame");
+            if (data.previewUrl && data.previewUrl !== "null" && data.previewUrl !== "undefined") {
+                previewFrame.querySelector("iframe").src = data.previewUrl;
+            } else {
+                previewContainer.innerHTML = `
+                    <div class="p-4 rounded-3 text-center text-secondary border border-secondary border-opacity-25" style="background: rgba(255,255,255,0.02);">
+                        <i class="bi bi-youtube fs-3 mb-2 d-block text-danger"></i>
+                        <span class="small">Live preview video is currently unavailable for this tour.</span>
+                    </div>
+                `;
+            }
+
+            // Load Artist Bio
+            if (data.name) {
+                const apiKey = ''; // Kept empty client-side. Real key is in .env in backend.
+                const hasProxy = typeof API_CONFIG !== 'undefined' && !!API_CONFIG.BACKEND_API_URL;
+                if (hasProxy || (apiKey && apiKey !== "YOUR_API_KEY_HERE")) {
+                    const url = hasProxy
+                        ? `${API_CONFIG.BACKEND_API_URL}/api/lastfm/artist?artist=${encodeURIComponent(data.name)}`
+                        : `https://ws.audioscrobbler.com/2.0/?method=artist.getinfo&artist=${encodeURIComponent(data.name)}&api_key=${apiKey}&format=json`;
+                    fetch(url)
+                    .then(res => res.json())
+                    .then(resData => {
+                        if (resData && resData.artist && resData.artist.bio && resData.artist.bio.summary) {
+                            let bioText = resData.artist.bio.summary;
+                            const linkIndex = bioText.indexOf('<a href=');
+                            if (linkIndex !== -1) bioText = bioText.substring(0, linkIndex);
+                            if (bioText.trim() !== "") {
+                                document.getElementById("artistBioText").innerHTML = bioText.trim();
+                            }
+                        }
+                    })
+                    .catch(e => {
+                        document.getElementById("artistBioText").innerText = `Capture the amazing energy of ${data.name} performing their greatest musical hits live on stage!`;
+                    });
+                }
+            }
+
+            // Start Live Countdown Timer
+            const countdownEl = document.getElementById("countdownDisplay");
+            let targetDate = new Date();
+            // Default: concert happens in 15 days
+            targetDate.setDate(targetDate.getDate() + 15);
+            if (data.dateVal) {
+                const parsedTarget = new Date(data.dateVal + "T19:00:00");
+                if (!isNaN(parsedTarget.getTime()) && parsedTarget > new Date()) {
+                    targetDate = parsedTarget;
+                }
+            }
+
+            const countdownInterval = setInterval(() => {
+                const now = new Date().getTime();
+                const difference = targetDate.getTime() - now;
+
+                if (difference < 0) {
+                    clearInterval(countdownInterval);
+                    countdownEl.innerText = "TOUR NIGHT IS HERE!";
+                } else {
+                    const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+                    const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+                    const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+                    countdownEl.innerText = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+                }
+            }, 1000);
+
+            // Render Booking list items
+            renderZoneList();
+            renderAddonList();
+
+            // Check if Book Now parameter was clicked (scrolling straight to ticket zones selector)
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get("book") === "true") {
+                setTimeout(() => {
+                    const selectorPanel = document.getElementById("ticketingSection");
+                    if (selectorPanel) {
+                        selectorPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+                    }
+                }, 500);
+            }
+
+            // Seating reserve session timer (10 mins)
+            let timeLeft = 600;
+            const timerInterval = setInterval(() => {
+                let min = Math.floor(timeLeft / 60);
+                let sec = timeLeft % 60;
+                document.getElementById("bookingTimer").innerText = `⏳ Time Left to Complete Selection: ${min}:${sec < 10 ? "0" + sec : sec}`;
+                timeLeft--;
+                if (timeLeft < 0) {
+                    clearInterval(timerInterval);
+                    alert("Ticket hold session expired! Re-evaluating seats.");
+                    location.reload();
+                }
+            }, 1000);
+            
+            // Populating Recommendations Grid
+            if (typeof concerts !== 'undefined') {
+                let recommendList = concerts.filter(c => c.name !== data.name).sort(() => 0.5 - Math.random()).slice(0, 4);
+                let recommendContainer = document.getElementById("moreSingersList");
+                if (recommendContainer) {
+                    recommendContainer.innerHTML = "";
+                    recommendList.forEach((c, cIdx) => {
+                        recommendContainer.innerHTML += `
+                            <div class="col-md-3 col-sm-6">
+                                <div class="card h-100" onclick="goToDetailsRecommendation('${c.name.replace(/'/g, "\\'")}')" style="background:#120b22; border:1px solid rgba(177,34,229,0.15); cursor:pointer; overflow:hidden; border-radius:12px;">
+                                    <img src="${c.img}" class="card-img-top" style="aspect-ratio:1/1; object-fit:cover;" alt="artist">
+                                    <div class="card-body p-3">
+                                        <h6 class="fw-bold text-white mb-1">${c.name}</h6>
+                                        <p class="text-secondary small mb-0">${c.venue}, ${c.city}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+            }
+        });
+
+        window.goToDetailsRecommendation = function(name) {
+            const match = concerts.find(c => c.name === name);
+            if (match) {
+                localStorage.setItem("concertData", JSON.stringify(match));
+                window.location.href = "concert_details.html";
+            }
+        };
+
+        function renderZoneList() {
+            const listEl = document.getElementById("zoneList");
+            listEl.innerHTML = "";
+            const baseConcertPrice = Number(data.price) || 500;
+
+            Object.keys(zoneTiers).forEach(key => {
+                const zone = zoneTiers[key];
+                let price = 0;
+                if (zone.isMultiplier) {
+                    price = Math.floor(baseConcertPrice * zone.priceOffset);
+                } else {
+                    price = baseConcertPrice + zone.priceOffset;
+                }
+
+                listEl.innerHTML += `
+                    <div class="zone-select-card d-flex justify-content-between align-items-center flex-wrap gap-2" id="zone-card-${key}" onclick="selectZone('${key}')">
+                        <div class="flex-grow-1" style="max-width: 480px;">
+                            <div class="d-flex align-items-center gap-2 mb-1.5">
+                                <h5 class="text-white fw-bold mb-0">${zone.name}</h5>
+                                <span class="badge bg-secondary opacity-75" style="font-size:0.7rem;">${zone.capacity}</span>
+                            </div>
+                            <p class="text-white-50 small mb-0">${zone.description}</p>
+                        </div>
+                        <div class="text-end d-flex align-items-center gap-3">
+                            <div class="text-end">
+                                <span class="text-secondary small d-block">TICKET PRICE</span>
+                                <h4 class="text-success fw-bold mb-0">₹${price}</h4>
+                            </div>
+                            <!-- Quantity selector -->
+                            <div class="d-flex align-items-center gap-2 bg-dark bg-opacity-50 p-1.5 rounded-3" onclick="event.stopPropagation()">
+                                <button class="qty-btn" onclick="updateQty('${key}', -1, ${price})">-</button>
+                                <span class="qty-val" id="qty-${key}">0</span>
+                                <button class="qty-btn" onclick="updateQty('${key}', 1, ${price})">+</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
         }
 
-        seat.onclick = function () {
-            if (seat.classList.contains("booked")) return;
-            seat.classList.add("locking");
+        function renderAddonList() {
+            const listEl = document.getElementById("addonList");
+            listEl.innerHTML = "";
+
+            addOnsList.forEach(item => {
+                addonQuantities[item.id] = 0;
+                listEl.innerHTML += `
+                    <div class="addon-card d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <div class="d-flex align-items-center gap-3">
+                            <span class="fs-4 text-warning"><i class="bi ${item.icon}"></i></span>
+                            <div>
+                                <h6 class="text-white fw-bold mb-0">${item.name}</h6>
+                                <span class="text-success small fw-bold">₹${item.price}</span>
+                            </div>
+                        </div>
+                        <!-- Qty Selector -->
+                        <div class="d-flex align-items-center gap-2 bg-dark bg-opacity-50 p-1.5 rounded-3">
+                            <button class="qty-btn" onclick="updateAddonQty('${item.id}', -1, ${item.price})">-</button>
+                            <span class="qty-val" id="addon-qty-${item.id}">0</span>
+                            <button class="qty-btn" onclick="updateAddonQty('${item.id}', 1, ${item.price})">+</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        window.selectZone = function(zoneId) {
+            // Remove previous active classes
+            document.querySelectorAll(".visual-zone-block").forEach(b => b.classList.remove("selected-zone"));
+            document.querySelectorAll(".zone-select-card").forEach(c => c.classList.remove("active-zone-card"));
+
+            selectedZoneId = zoneId;
+            
+            // Highlight visual map and select card
+            const mapBlock = document.getElementById(`map-${zoneId}`);
+            if (mapBlock) mapBlock.classList.add("selected-zone");
+
+            const selectCard = document.getElementById(`zone-card-${zoneId}`);
+            if (selectCard) selectCard.classList.add("active-zone-card");
+
+            // Sync checkout description
+            const baseConcertPrice = Number(data.price) || 500;
+            const zoneInfo = zoneTiers[zoneId];
+            let price = zoneInfo.isMultiplier ? Math.floor(baseConcertPrice * zoneInfo.priceOffset) : (baseConcertPrice + zoneInfo.priceOffset);
+            selectedPrice = price;
+
+            // If selected zone has 0 qty, force set to 1 ticket for convenience
+            if (selectedQty === 0) {
+                selectedQty = 1;
+                document.getElementById(`qty-${zoneId}`).innerText = "1";
+            }
+            
+            // Zero out other zones quantity to keep single zone tier transaction logic
+            Object.keys(zoneTiers).forEach(key => {
+                if (key !== zoneId) {
+                    document.getElementById(`qty-${key}`).innerText = "0";
+                }
+            });
+
+            updateCheckoutSummary();
+        };
+
+        window.updateQty = function(zoneId, change, price) {
+            // Force select this zone first
+            if (selectedZoneId !== zoneId) {
+                selectZone(zoneId);
+            }
+
+            let currentVal = selectedQty;
+            let newVal = currentVal + change;
+
+            if (newVal < 0) newVal = 0;
+            if (newVal > 6) {
+                alert("Max 6 tickets allowed per transaction!");
+                return;
+            }
+
+            selectedQty = newVal;
+            document.getElementById(`qty-${zoneId}`).innerText = newVal;
+
+            updateCheckoutSummary();
+        };
+
+        window.updateAddonQty = function(addonId, change, price) {
+            let current = addonQuantities[addonId] || 0;
+            let newVal = current + change;
+            if (newVal < 0) newVal = 0;
+            if (newVal > 10) newVal = 10;
+
+            addonQuantities[addonId] = newVal;
+            document.getElementById(`addon-qty-${addonId}`).innerText = newVal;
+
+            updateCheckoutSummary();
+        };
+
+        function updateCheckoutSummary() {
+            const grandTotalText = document.getElementById("grandTotalText");
+            const checkoutZoneText = document.getElementById("checkoutZoneText");
+            const checkoutAddonsSummary = document.getElementById("checkoutAddonsSummary");
+            const bookBtn = document.getElementById("bookBtn");
+
+            let zoneTotal = selectedQty * selectedPrice;
+            let addonsTotal = 0;
+            let addonsSelectedList = [];
+
+            addOnsList.forEach(item => {
+                const qty = addonQuantities[item.id] || 0;
+                if (qty > 0) {
+                    addonsTotal += qty * item.price;
+                    addonsSelectedList.push(`${item.name} (x${qty})`);
+                }
+            });
+
+            const grandTotal = zoneTotal + addonsTotal;
+            grandTotalText.innerText = grandTotal;
+
+            if (selectedZoneId && selectedQty > 0) {
+                const zoneInfo = zoneTiers[selectedZoneId];
+                checkoutZoneText.innerText = `${zoneInfo.name} — ${selectedQty} Ticket(s)`;
+                bookBtn.disabled = false;
+            } else {
+                checkoutZoneText.innerText = "None Selected";
+                bookBtn.disabled = true;
+            }
+
+            if (addonsSelectedList.length > 0) {
+                checkoutAddonsSummary.innerText = "Add-ons: " + addonsSelectedList.join(", ");
+            } else {
+                checkoutAddonsSummary.innerText = "Add-ons: None";
+            }
+        }
+
+        window.checkoutConcert = function() {
+            if (!selectedZoneId || selectedQty === 0) return;
+
+            // Save billing/seating details for checkout
+            const chosenZone = zoneTiers[selectedZoneId];
+            const baseConcertPrice = Number(data.price) || 500;
+            const finalZonePrice = chosenZone.isMultiplier ? Math.floor(baseConcertPrice * chosenZone.priceOffset) : (baseConcertPrice + chosenZone.priceOffset);
+            
+            // Build addons JSON
+            let selectedAddonsList = [];
+            let addonsSum = 0;
+            addOnsList.forEach(item => {
+                const qty = addonQuantities[item.id] || 0;
+                if (qty > 0) {
+                    selectedAddonsList.push({ name: item.name, price: item.price, quantity: qty });
+                    addonsSum += qty * item.price;
+                }
+            });
+
+            // Set localStorage elements matching billing expectations
+            localStorage.removeItem("movie");
+            localStorage.removeItem("cricketMatch");
+            
+            // Ticket hold variables
+            localStorage.setItem("amount", (selectedQty * finalZonePrice) + addonsSum);
+            localStorage.setItem("seats", JSON.stringify(Array.from({ length: selectedQty }, (_, i) => `${chosenZone.name} #${i + 1}`)));
+            
+            // Save concert billing specifications
+            localStorage.setItem("concertTicketTotal", selectedQty * finalZonePrice);
+            localStorage.setItem("concertAddonsTotal", addonsSum);
+            localStorage.setItem("concertAddons", JSON.stringify(selectedAddonsList));
+            localStorage.setItem("concertZone", chosenZone.name);
+            localStorage.setItem("concertQty", selectedQty);
+
+            // Trigger payment redirect
+            const btn = document.getElementById("bookBtn");
+            btn.innerText = "Checking validation status...";
+            btn.disabled = true;
 
             setTimeout(() => {
-                seat.classList.remove("locking");
-
-                if (!seat.classList.contains("selected") && selected.length >= 6) {
-                    alert("Max 6 seats allowed");
-                    return;
-                }
-
-                seat.classList.toggle("selected");
-
-                if (selected.find(s => s.num === seatNumber)) {
-                    selected = selected.filter(s => s.num !== seatNumber);
+                // Ensure auth referral check redirects cleanly
+                const loggedInUser = localStorage.getItem("loggedInUser");
+                if (!loggedInUser || loggedInUser === "Guest") {
+                    localStorage.setItem("loginRedirectUrl", "payment.html");
+                    alert("Please log in or authenticate to complete your payment securely!");
+                    window.location.href = "login.html";
                 } else {
-                    selected.push({ num: seatNumber, price: info.price });
+                    window.location.href = "payment.html";
                 }
-                updateTotal();
-            }, 150);
+            }, 1200);
         };
-        return seat;
-    }
-
-    function createBlock(blockData, prefix) {
-        let blockDiv = document.createElement("div");
-        blockDiv.classList.add("seat-block");
-        blockDiv.id = blockData.id;
-
-        let title = document.createElement("h6");
-        title.className = `text-center mb-3 fw-bold text-uppercase ${blockData.colorClass}`;
-        title.style.letterSpacing = "2px";
-        title.innerText = blockData.name;
-        blockDiv.appendChild(title);
-
-        blockData.seatsPerRow.forEach((numSeats, rowIndex) => {
-            let rowDiv = document.createElement("div");
-            rowDiv.classList.add("seat-row");
-
-            let rowLetter = String.fromCharCode(65 + rowIndex); // A, B, C...
-
-            for (let i = 1; i <= numSeats; i++) {
-                let seatNum = `${prefix}${rowLetter}${i}`;
-                let seat = createSeat({ type: blockData.type, price: blockData.price, name: blockData.name }, seatNum);
-                rowDiv.appendChild(seat);
-            }
-            blockDiv.appendChild(rowDiv);
-        });
-        return blockDiv;
-    }
-
-    arena.forEach(section => {
-        if (section.type === "split") {
-            let splitDiv = document.createElement("div");
-            splitDiv.className = "d-flex justify-content-between w-100 mt-4 split-stands";
-            splitDiv.style.maxWidth = "850px";
-
-            let leftBlock = createBlock(section.items[0], "GL-");
-            let rightBlock = createBlock(section.items[1], "GR-");
-            
-            splitDiv.appendChild(leftBlock);
-            splitDiv.appendChild(rightBlock);
-            groundLayout.appendChild(splitDiv);
-        } else {
-            let block = createBlock(section, section.id === "vip-pit" ? "V-" : "S-");
-            if (section.id !== "vip-pit") block.classList.add("mt-4");
-            groundLayout.appendChild(block);
-        }
-    });
-
-    function updateTotal() {
-      let total = selected.reduce((sum, s) => sum + s.price, 0);
-      document.getElementById("total").innerText = total;
-      document.getElementById("seatCount").innerText = selected.length;
-      document.getElementById("selectedSeats").innerText =
-        selected.length ? selected.map(s => `${s.num} (Rs.${s.price})`).join(", ") : "None";
-    }
-
-    function selectBestSeats() {
-      let availableSeats = Array.from(document.querySelectorAll(".seat:not(.booked)"));
-      
-      if (availableSeats.length === 0) {
-        alert("No seats available!");
-        return;
-      }
-
-      let screenCenter = window.innerWidth / 2;
-      
-      availableSeats.sort((a, b) => {
-        let rectA = a.getBoundingClientRect();
-        let rectB = b.getBoundingClientRect();
-        let distA = Math.abs(screenCenter - (rectA.left + rectA.width / 2));
-        let distB = Math.abs(screenCenter - (rectB.left + rectB.width / 2));
-        return distA - distB;
-      });
-
-      let seatsToSelect = Math.min(6, availableSeats.length);
-      
-      availableSeats.forEach(s => {
-          if(s.classList.contains("selected")) {
-              s.click();
-          }
-      });
-
-      setTimeout(() => {
-          for (let i = 0; i < seatsToSelect; i++) {
-            availableSeats[i].click();
-          }
-      }, 200);
-    }
-
-    function goToPayment() {
-      if (selected.length === 0) {
-        alert("Select at least one seat!");
-        return;
-      }
-      let total = selected.reduce((sum, s) => sum + s.price, 0);
-      let selectedSeats = selected.map(s => s.num);
-
-      localStorage.removeItem("movie");
-      localStorage.removeItem("cricketMatch");
-      localStorage.setItem("amount", total);
-      localStorage.setItem("seats", JSON.stringify(selectedSeats));
-
-      let bookedSeats = JSON.parse(localStorage.getItem("bookedSeats")) || [];
-      let updated = [...new Set([...bookedSeats, ...selectedSeats])];
-      localStorage.setItem("bookedSeats", JSON.stringify(updated));
-
-      let btn = document.getElementById("proceedBtn");
-      btn.innerHTML = "Processing...";
-      btn.disabled = true;
-
-      setTimeout(() => {
-        window.location.href = "payment.html";
-      }, 1200);
-    }
-    let timeLeft = 300;
-    let timer = setInterval(() => {
-      let min = Math.floor(timeLeft / 60);
-      let sec = timeLeft % 60;
-      document.getElementById("timer").innerText = `⏳ Time Left: ${min}:${sec < 10 ? "0" + sec : sec}`;
-      timeLeft--;
-      if (timeLeft < 0) {
-        clearInterval(timer);
-        alert("Session expired! Seats released.");
-        location.reload();
-      }
-    }, 1000);
-
-    // ================= MORE BOLLYWOOD SINGERS =================
-    if (typeof concerts !== 'undefined') {
-      let singer = data ? data.name : "";
-      let moreSingers = concerts.filter(c => c.name !== singer);
-      // Pick up to 4 randomly
-      moreSingers = moreSingers.sort(() => 0.5 - Math.random()).slice(0, 4);
-      
-      let moreSingersContainer = document.getElementById("moreSingersList");
-      if (moreSingersContainer) {
-        moreSingersContainer.innerHTML = "";
-        moreSingers.forEach((c, index) => {
-          const imgId = `more-img-${index}`;
-          const fallbacks = getImageFallbacks(c.img);
-          moreSingersContainer.innerHTML += `
-            <div class="col-md-3 col-sm-6">
-              <div class="card h-100" onclick="goToDetails('${c.name}','${c.city}','${c.venue}','${c.date}','${c.time}','${c.price}', document.getElementById('${imgId}').src)" style="background: #1a1a1a; border: 1px solid #333; cursor: pointer; transition: transform 0.3s ease; border-radius: 12px; overflow: hidden; height: 100%;">
-                <img src="${c.img}" 
-                     id="${imgId}"
-                     class="card-img-top" 
-                     alt="${c.name}" 
-                     style="aspect-ratio: 1 / 1; object-fit: cover;" 
-                     data-fallbacks='${JSON.stringify(fallbacks)}'
-                     data-fallback-index="0"
-                     onerror="handleConcertImgError(this)">
-                <div class="card-body p-3">
-                  <h5 class="card-title text-white fw-bold" style="font-size: 1.1rem; margin-bottom: 5px;">${c.name}</h5>
-                  <p class="card-text text-secondary" style="font-size: 0.9rem; margin-bottom: 0;">${c.venue}, ${c.city} • ${c.month}</p>
-                </div>
-              </div>
-            </div>
-          `;
-        });
-      }
-    }
-  </script>
+    </script>
 </body>
 </html>

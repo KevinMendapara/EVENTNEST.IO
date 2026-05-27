@@ -1,3 +1,10 @@
+// =========================================================================
+// SECURITY WARNING: Frontend-only admin redirection checks can be easily 
+// bypassed by end-users. For a production deployment, this administration portal
+// must be gated behind a secure, server-side session role validation check
+// (e.g. Supabase Auth with custom claims, JWT validations, or middleware session checks).
+// =========================================================================
+
 document.addEventListener('DOMContentLoaded', () => {
     // ---- Navigation Logic ----
     const navItems = document.querySelectorAll('.nav-item');
@@ -68,6 +75,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ---- Dynamic Data Loading ----
+    let categoryChartInstance = null;
+    let revenueChartInstance = null;
+
     async function loadAdminData() {
         // Load Bookings (Orders)
         let orders = [];
@@ -103,9 +113,182 @@ document.addEventListener('DOMContentLoaded', () => {
             users.push({ email: loggedInUser });
         }
 
+        updateStats(orders, users);
         renderBookings(orders);
         renderUsers(users);
         renderEvents();
+        renderCharts(orders);
+    }
+
+    function getOrderCategory(order) {
+        if (order.category) {
+            const cat = order.category.toLowerCase();
+            if (cat.includes('movie')) return 'Movies';
+            if (cat.includes('concert') || cat.includes('music')) return 'Concerts';
+            if (cat.includes('cricket') || cat.includes('sport') || cat.includes('ipl')) return 'Sports';
+            if (cat.includes('seminar')) return 'Seminars';
+            if (cat.includes('workshop')) return 'Workshops';
+        }
+        const title = (order.title || '').toLowerCase();
+        if (title.includes('vs') || title.includes('csk') || title.includes('mi') || title.includes('rcb') || title.includes('ipl') || title.includes('match') || title.includes('stadium') || title.includes('cricket')) {
+            return 'Sports';
+        }
+        if (title.includes('concert') || title.includes('music') || title.includes('band') || title.includes('sunburn') || title.includes('arijit') || title.includes('live')) {
+            return 'Concerts';
+        }
+        if (title.includes('seminar') || title.includes('talk') || title.includes('summit')) {
+            return 'Seminars';
+        }
+        if (title.includes('workshop') || title.includes('learn') || title.includes('bootcamp') || title.includes('class')) {
+            return 'Workshops';
+        }
+        return 'Movies'; // Fallback
+    }
+
+    function updateStats(orders, users) {
+        const totalBookings = orders.length;
+        const activeOrders = orders.filter(o => o.status !== 'Cancelled');
+        const totalRevenue = activeOrders.reduce((sum, o) => sum + (parseInt(o.amount) || 0), 0);
+        const cancelledCount = orders.filter(o => o.status === 'Cancelled').length;
+
+        document.getElementById('stat-bookings').innerText = totalBookings;
+        document.getElementById('stat-revenue').innerText = `₹${(totalRevenue).toLocaleString('en-IN')}`;
+        document.getElementById('stat-events').innerText = eventsList.length;
+        document.getElementById('stat-users').innerText = users.length;
+        document.getElementById('stat-cancelled').innerText = cancelledCount;
+    }
+
+    function renderCharts(orders) {
+        const categoryCounts = {
+            'Movies': 0,
+            'Concerts': 0,
+            'Sports': 0,
+            'Seminars': 0,
+            'Workshops': 0
+        };
+
+        orders.forEach(order => {
+            if (order.status !== 'Cancelled') {
+                const cat = getOrderCategory(order);
+                categoryCounts[cat]++;
+            }
+        });
+
+        const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+        if (categoryChartInstance) {
+            categoryChartInstance.destroy();
+        }
+        categoryChartInstance = new Chart(categoryCtx, {
+            type: 'doughnut',
+            data: {
+                labels: Object.keys(categoryCounts),
+                datasets: [{
+                    data: Object.values(categoryCounts),
+                    backgroundColor: [
+                        '#e50914', // Movies
+                        '#8e24aa', // Concerts
+                        '#009688', // Sports
+                        '#ffbe0b', // Seminars
+                        '#00f2fe'  // Workshops
+                    ],
+                    borderWidth: 1,
+                    borderColor: '#141414'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            color: '#808080',
+                            font: { family: 'Roboto', size: 11 }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Last 8 bookings trends (older to newer)
+        const recentOrders = orders.slice(0, 8).reverse();
+        const revenueLabels = recentOrders.map((o, idx) => {
+            return o.id ? (o.id.toString().startsWith('#') ? o.id : `#EN-${o.id.toString().substring(0, 4)}`) : `#EN-T${idx}`;
+        });
+        const revenueData = recentOrders.map(o => o.status === 'Cancelled' ? 0 : (parseInt(o.amount) || 0));
+
+        const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+        if (revenueChartInstance) {
+            revenueChartInstance.destroy();
+        }
+        revenueChartInstance = new Chart(revenueCtx, {
+            type: 'line',
+            data: {
+                labels: revenueLabels.length > 0 ? revenueLabels : ['No Bookings'],
+                datasets: [{
+                    label: 'Booking Revenue (₹)',
+                    data: revenueData.length > 0 ? revenueData : [0],
+                    borderColor: '#e50914',
+                    backgroundColor: 'rgba(229, 9, 20, 0.15)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointBackgroundColor: '#e50914',
+                    pointBorderColor: '#fff',
+                    pointRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        ticks: { color: '#808080', font: { size: 10 } },
+                        grid: { color: 'rgba(255,255,255,0.05)' }
+                    },
+                    y: {
+                        ticks: { color: '#808080', font: { size: 10 } },
+                        grid: { color: 'rgba(255,255,255,0.05)' }
+                    }
+                },
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+    }
+
+    async function cancelBooking(orderId) {
+        let orders = JSON.parse(localStorage.getItem('orders')) || [];
+        let found = false;
+
+        // Search and cancel locally
+        for (let i = 0; i < orders.length; i++) {
+            const genId = orders[i].id ? (orders[i].id.toString().startsWith('#') ? orders[i].id : `#EN-${orders[i].id.toString().substring(0, 5)}`) : `#EN-${10000 + i}`;
+            if (genId === orderId || orders[i].id === orderId || orders[i].id?.toString() === orderId) {
+                orders[i].status = 'Cancelled';
+                found = true;
+                break;
+            }
+        }
+
+        if (found) {
+            localStorage.setItem('orders', JSON.stringify(orders));
+
+            // Optional Supabase cancel
+            if (typeof supabaseClient !== 'undefined' && !SUPABASE_URL.includes('YOUR-PROJECT-ID')) {
+                // Find order matching ID
+                const { data } = await supabaseClient.from('orders').select('id').eq('id', orderId);
+                if (data && data.length > 0) {
+                    await supabaseClient.from('orders').update({ status: 'Cancelled' }).eq('id', orderId);
+                }
+            }
+
+            alert(`Booking ${orderId} successfully cancelled! Refund of amount has been initiated.`);
+            loadAdminData(); // Refresh stats, tables, charts
+        } else {
+            alert(`Booking ID ${orderId} not found in database.`);
+        }
     }
 
     function renderBookings(orders) {
@@ -126,7 +309,19 @@ document.addEventListener('DOMContentLoaded', () => {
         if (tableContainer) tableContainer.style.display = 'block';
 
         orders.forEach((order, index) => {
-            const orderId = order.id || `#EN-${Math.floor(10000 + Math.random() * 90000)}`;
+            const orderId = order.id ? (order.id.toString().startsWith('#') ? order.id : `#EN-${order.id.toString().substring(0, 5)}`) : `#EN-${10000 + index}`;
+            const isCancelled = order.status === 'Cancelled';
+            const statusBadge = isCancelled 
+                ? '<span class="status-badge status-cancelled">Cancelled</span>' 
+                : '<span class="status-badge status-active">Success</span>';
+
+            let actionHTML = '';
+            if (isCancelled) {
+                actionHTML = `<span style="color: var(--netflix-light-grey); font-size: 0.85rem;">N/A</span>`;
+            } else {
+                actionHTML = `<button class="btn-red cancel-booking-btn" data-id="${orderId}" style="padding: 5px 10px; font-size: 0.8rem; background: #c0392b; border-radius: 4px; border: none; cursor: pointer;">Cancel</button>`;
+            }
+
             const rowHTML = `
                 <tr>
                     <td>${orderId}</td>
@@ -135,7 +330,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     <td>₹${order.amount || 0}</td>
                     <td>${order.seats || 'N/A'}</td>
                     <td>${order.date ? new Date(order.date).toLocaleDateString() : 'N/A'}</td>
-                    <td><span class="status-badge status-active">Success</span></td>
+                    <td>${statusBadge}</td>
+                    <td>${actionHTML}</td>
                 </tr>
             `;
             if (mainBody) mainBody.innerHTML += rowHTML;
@@ -145,9 +341,20 @@ document.addEventListener('DOMContentLoaded', () => {
                     <td>${order.user || 'Guest'}</td>
                     <td>${order.title || 'Event'}</td>
                     <td>₹${order.amount || 0}</td>
-                    <td><span class="status-badge status-active">Success</span></td>
+                    <td>${statusBadge}</td>
                 </tr>
             `;
+        });
+
+        // Add cancellation click listeners
+        document.querySelectorAll('.cancel-booking-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const oid = this.getAttribute('data-id');
+                if (confirm(`Are you sure you want to cancel booking ${oid}?`)) {
+                    cancelBooking(oid);
+                }
+            });
         });
     }
 
@@ -169,17 +376,17 @@ document.addEventListener('DOMContentLoaded', () => {
                     <td>${user.email || 'Unknown'}</td>
                     <td>Customer</td>
                     <td>${user.age ? user.age + ' yrs' : 'N/A'}</td>
-                    <td><button class="btn-red user-manage-btn" style="padding: 5px 10px; font-size: 0.8rem;">Manage</button></td>
+                    <td><button class="btn-red user-manage-btn" data-email="${user.email}" style="padding: 5px 10px; font-size: 0.8rem;">Manage</button></td>
                 </tr>
             `;
         });
         
-        document.querySelectorAll('.user-manage-btn').forEach((btn, index) => {
-            btn.addEventListener('click', () => {
-                const user = users[index > 0 ? index : index]; // Approximation
-                const newRole = prompt(`Manage user: ${user.email}\nCurrent Role: Customer\n\nEnter new role (e.g., Admin, Customer, Banned):`, "Customer");
+        document.querySelectorAll('.user-manage-btn').forEach((btn) => {
+            btn.addEventListener('click', function() {
+                const email = this.getAttribute('data-email');
+                const newRole = prompt(`Manage user: ${email}\nCurrent Role: Customer\n\nEnter new role (e.g., Admin, Customer, Banned):`, "Customer");
                 if (newRole) {
-                    alert(`User ${user.email} role updated to ${newRole}`);
+                    alert(`User ${email} role updated to ${newRole}`);
                 }
             });
         });
