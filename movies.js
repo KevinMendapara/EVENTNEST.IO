@@ -1,5 +1,5 @@
 // --- TMDB API CONFIGURATION ---
-const TMDB_API_KEY = ""; // Kept as empty string client-side. Real key is moved to .env in backend.
+const TMDB_API_KEY = "867744ecc894f0582dea35e80fd71a4d";
 
 // Helper function to fetch movie poster & rating from TMDB API dynamically
 async function fetchTMDBData(movieName, fallbackImg) {

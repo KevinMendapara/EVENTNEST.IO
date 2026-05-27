@@ -116,7 +116,7 @@ if (data) {
   }
 }
 
-const TMDB_API_KEY = ""; // Kept as empty string client-side. Real key is moved to .env in backend.
+const TMDB_API_KEY = "867744ecc894f0582dea35e80fd71a4d";
 
 async function fetchTMDBDetails(movieName) {
   try {

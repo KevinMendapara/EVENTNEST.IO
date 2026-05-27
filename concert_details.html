@@ -471,9 +471,8 @@
 
             // Load Artist Bio
             if (data.name) {
-                const apiKey = ''; // Kept empty client-side. Real key is in .env in backend.
+                const apiKey = 'f41b44e21e1a1f08b9f1549c5fe45ece';
                 const hasProxy = typeof API_CONFIG !== 'undefined' && !!API_CONFIG.BACKEND_API_URL;
-                if (hasProxy || (apiKey && apiKey !== "YOUR_API_KEY_HERE")) {
                     const url = hasProxy
                         ? `${API_CONFIG.BACKEND_API_URL}/api/lastfm/artist?artist=${encodeURIComponent(data.name)}`
                         : `https://ws.audioscrobbler.com/2.0/?method=artist.getinfo&artist=${encodeURIComponent(data.name)}&api_key=${apiKey}&format=json`;
@@ -492,7 +491,6 @@
                     .catch(e => {
                         document.getElementById("artistBioText").innerText = `Capture the amazing energy of ${data.name} performing their greatest musical hits live on stage!`;
                     });
-                }
             }
 
             // Start Live Countdown Timer

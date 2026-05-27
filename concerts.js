@@ -192,12 +192,8 @@ function handleConcertImgError(img) {
 
 // ================= LAST.FM API INTEGRATION =================
 async function loadArtistLastFmData(artistName, index, localImg, imgElementId) {
-  const apiKey = ''; // Kept empty client-side. Real key is in .env in backend.
+  const apiKey = 'f41b44e21e1a1f08b9f1549c5fe45ece';
   const hasProxy = typeof API_CONFIG !== 'undefined' && !!API_CONFIG.BACKEND_API_URL;
-  if (!hasProxy && (!apiKey || apiKey === "YOUR_API_KEY_HERE")) {
-    // If no proxy and no local key, skip fetching bio
-    return;
-  }
   const url = hasProxy
     ? `${API_CONFIG.BACKEND_API_URL}/api/lastfm/artist?artist=${encodeURIComponent(artistName)}`
     : `https://ws.audioscrobbler.com/2.0/?method=artist.getinfo&artist=${encodeURIComponent(artistName)}&api_key=${apiKey}&format=json`;
