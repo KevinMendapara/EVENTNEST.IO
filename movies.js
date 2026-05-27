@@ -38,11 +38,17 @@ async function fetchTMDBData(movieName, fallbackImg) {
   return result;
 }
 
-// Comprehensive Multi-Tier Image Proxy Fallback Builder
+// Comprehensive Multi-Tier Image Proxy Fallback Builder with CORS support
 function getImageFallbacks(primaryUrl) {
   const fallbacks = [];
   if (!primaryUrl) return ['images/main_hero.png'];
   if (!primaryUrl.startsWith('http')) return [primaryUrl, 'images/main_hero.png'];
+
+  // Add weserv.nl proxy wrapper for TMDB images (CORS-friendly)
+  if (primaryUrl.includes('image.tmdb.org')) {
+    const cleanUrl = primaryUrl.replace(/^https?:\/\//, '');
+    fallbacks.push(`https://images.weserv.nl/?url=${cleanUrl}&output=jpg&quality=90`);
+  }
 
   let rawUrl = primaryUrl;
   if (primaryUrl.includes('weserv.nl/?url=')) {
@@ -407,8 +413,15 @@ async function displayMovies(data, containerId = "movieList") {
   container.innerHTML = "";
 
   const movieCardsHtml = data.map((m, index) => {
-    const posterImg = m.img;
-    const fallbacks = getImageFallbacks(posterImg);
+    let posterImg = m.img;
+    
+    // Wrap TMDB images with CORS-friendly proxy
+    if (posterImg.includes('image.tmdb.org')) {
+      const cleanUrl = posterImg.replace(/^https?:\/\//, '');
+      posterImg = `https://images.weserv.nl/?url=${cleanUrl}&output=jpg&quality=90`;
+    }
+    
+    const fallbacks = getImageFallbacks(m.img);
     const safeName = m.name.replace(/'/g, "\\'");
     const imgId = `${containerId}-img-${index}`;
 
