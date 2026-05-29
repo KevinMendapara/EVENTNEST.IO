@@ -45,7 +45,7 @@ document.getElementById("loginForm").addEventListener("submit", function (e) {
   let remember = document.getElementById("rememberMe").checked;
 
   // HARDCODED ADMIN LOGIN Redirect
-  if (email === "admin@eventnest.com" && password === "admin123") {
+  if (email === "adminxeventnest@gmail.com" && password === "adminxx1234") {
       if (remember) localStorage.setItem("session", "true");
       localStorage.setItem("loggedInUser", email);
       localStorage.setItem("userProfile", JSON.stringify({ name: "Admin", email, role: "admin" }));

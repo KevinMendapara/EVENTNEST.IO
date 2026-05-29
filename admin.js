@@ -363,14 +363,14 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!tbody) return;
         tbody.innerHTML = `
             <tr>
-                <td>admin@eventnest.com</td>
+                <td>adminxeventnest@gmail.com</td>
                 <td>Superadmin</td>
                 <td>System</td>
                 <td><button class="btn-red" style="padding: 5px 10px; font-size: 0.8rem; background: #333;"><i class="fas fa-lock"></i></button></td>
             </tr>
         `;
         users.forEach(user => {
-            if (user.email === 'admin@eventnest.com') return; // Skip default admin
+            if (user.email === 'adminxeventnest@gmail.com') return; // Skip default admin
             tbody.innerHTML += `
                 <tr>
                     <td>${user.email || 'Unknown'}</td>

@@ -8,9 +8,9 @@
 const API_CONFIG = {
     // 1. EmailJS Configuration (Public Browser IDs)
     // Get your public keys from https://dashboard.emailjs.com/
-    EMAILJS_PUBLIC_KEY: "",     // Insert your EmailJS Public Key here
-    EMAILJS_SERVICE_ID: "",      // Insert your EmailJS Service ID here
-    EMAILJS_TEMPLATE_ID: "",     // Insert your EmailJS Template ID here
+    EMAILJS_PUBLIC_KEY: "MBAj3EhIpm9_vXG-T",     // Insert your EmailJS Public Key here
+    EMAILJS_SERVICE_ID: "service_6m0v7fx",      // Insert your EmailJS Service ID here
+    EMAILJS_TEMPLATE_ID: "template_j4x5yqa",     // Insert your EmailJS Template ID here
 
     // 2. Google Maps Configuration
     // Add your public key if using dynamic maps API features, otherwise it defaults to the free iframe search.
@@ -18,12 +18,12 @@ const API_CONFIG = {
 
     // 3. OneSignal Push Notifications Configuration
     // Get your App ID from https://dashboard.onesignal.com/
-    ONESIGNAL_APP_ID: "",        // Insert your OneSignal App ID here
+    ONESIGNAL_APP_ID: "3abbcad0-1e99-49d2-bab5-2204fb975d9b",        // Insert your OneSignal App ID here
 
     // 4. OpenWeatherMap Configuration
     // Get your API key from https://openweathermap.org/api
     // NOTE: For production, this weather request should be proxied through the backend server
     // to shield your API key from user inspection.
-    OPENWEATHERMAP_API_KEY: ""   // Insert your OpenWeatherMap API key here
+    OPENWEATHERMAP_API_KEY: "YOUR_OPENWEATHERMAP_API_KEY"   // Insert your OpenWeatherMap API key here
 };
 window.API_CONFIG = API_CONFIG;

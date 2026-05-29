@@ -624,6 +624,10 @@
                 if (typeof supabaseClient !== 'undefined' && !SUPABASE_URL.includes('YOUR-PROJECT-ID')) {
                     supabaseClient.from('orders').insert([order]).then(({data, error}) => {
                         if(error) console.error("Supabase Error:", error);
+                        // Save order to localStorage so success.html can retrieve the correct order details and recipient email
+                        let orders = JSON.parse(localStorage.getItem("orders")) || [];
+                        orders.push(order);
+                        localStorage.setItem("orders", JSON.stringify(orders));
                         showSuccessUI();
                     });
                 } else {

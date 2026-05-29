@@ -277,12 +277,21 @@
 
             // Load User Profile Name
             const loggedInEmail = localStorage.getItem("loggedInUser");
-            let username = localStorage.getItem("username");
+            let username = null;
+            try {
+                const profile = JSON.parse(localStorage.getItem("userProfile"));
+                if (profile && profile.name) username = profile.name;
+            } catch(e) {}
+            if (!username) {
+                username = localStorage.getItem("username");
+            }
             if (loggedInEmail && !username) {
                 username = loggedInEmail.split("@")[0];
             }
             if (username) {
                 document.getElementById("userDisplayName").innerText = `Welcome, ${username}!`;
+            } else {
+                document.getElementById("userDisplayName").innerText = `Welcome, Guest!`;
             }
 
             updateDashboard(points);

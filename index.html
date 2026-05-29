@@ -63,40 +63,6 @@
     <link rel="stylesheet" href="style.css">
 
     <style>
-        /* ====== CUSTOM CINEMATIC CURSOR ====== */
-        body {
-            cursor: none;
-        }
-        .custom-cursor {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 20px;
-            height: 20px;
-            border: 2px solid var(--netflix-red, #e50914);
-            border-radius: 50%;
-            pointer-events: none;
-            transform: translate3d(-100px, -100px, 0) translate(-50%, -50%);
-            z-index: 10000;
-            transition: width 0.2s, height 0.2s, background-color 0.2s, box-shadow 0.2s;
-            box-shadow: 0 0 10px rgba(229, 9, 20, 0.5);
-            will-change: transform;
-        }
-        .custom-cursor-dot {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 4px;
-            height: 4px;
-            background: #fff;
-            border-radius: 50%;
-            pointer-events: none;
-            transform: translate3d(-100px, -100px, 0) translate(-50%, -50%);
-            z-index: 10001;
-            box-shadow: 0 0 5px #fff;
-            will-change: transform;
-        }
-
         /* ====== AI ASSISTANT CHATBOT ====== */
         .ai-chatbot {
             position: fixed;
@@ -240,6 +206,210 @@
             font-size: 1.5rem;
             color: #ffc107;
         }
+
+        /* ====== MODAL DARK STYLING & GLASSMORPHISM ====== */
+        .modal-dark .modal-content {
+            background: rgba(20, 20, 29, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: #fff;
+            border-radius: 20px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.8), 0 0 30px rgba(229, 9, 20, 0.05);
+        }
+        .modal-dark .modal-header {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 20px 25px;
+        }
+        .modal-dark .modal-footer {
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 15px 25px;
+        }
+        .modal-dark .modal-body {
+            padding: 25px;
+        }
+        .modal-dark .form-control {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: #fff;
+            border-radius: 10px;
+            padding: 12px;
+            transition: all 0.3s;
+        }
+        .modal-dark .form-control:focus {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--netflix-red, #e50914);
+            box-shadow: 0 0 0 0.25rem rgba(229, 9, 20, 0.2);
+            color: #fff;
+        }
+        .modal-dark .btn-close {
+            filter: invert(1) grayscale(100%) brightness(200%);
+        }
+
+        /* ====== PREMIUM VIRTUAL PLAY CREDIT CARD (FLIP) ====== */
+        .credit-card-wrap {
+            perspective: 1000px;
+            width: 100%;
+            max-width: 360px;
+            height: 220px;
+            margin: 20px auto;
+            cursor: pointer;
+        }
+        .credit-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: left;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-style: preserve-3d;
+        }
+        .credit-card-wrap.flipped .credit-card-inner {
+            transform: rotateY(180deg);
+        }
+        .card-front, .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 16px;
+            padding: 22px;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .card-front {
+            background: linear-gradient(135deg, #2b020a 0%, #120306 40%, #000000 100%);
+            position: relative;
+        }
+        .card-front::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(229, 9, 20, 0.15) 0%, transparent 60%);
+            pointer-events: none;
+        }
+        .card-back {
+            background: linear-gradient(135deg, #14050a 0%, #0a0104 60%, #000000 100%);
+            transform: rotateY(180deg);
+        }
+        .card-chip {
+            width: 45px;
+            height: 32px;
+            background: linear-gradient(135deg, #ffd700 0%, #d4af37 50%, #aa7c11 100%);
+            border-radius: 6px;
+            position: relative;
+            box-shadow: inset 0 1px 3px rgba(255,255,255,0.4);
+        }
+        .card-chip::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 33px;
+            height: 22px;
+            border: 1px solid rgba(0,0,0,0.2);
+            border-radius: 4px;
+        }
+        .card-number {
+            font-size: 1.3rem;
+            letter-spacing: 3px;
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: bold;
+            margin: 15px 0 5px 0;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+        }
+        .card-holder-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+        .card-label {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: rgba(255,255,255,0.5);
+            margin-bottom: 2px;
+        }
+        .card-value {
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        .card-magstrip {
+            height: 40px;
+            background: #000;
+            margin: 10px -22px 0 -22px;
+        }
+        .card-signature-area {
+            background: rgba(255,255,255,0.15);
+            height: 35px;
+            border-radius: 4px;
+            margin: 15px 0;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 12px;
+        }
+        .card-cvv {
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: bold;
+            color: #000;
+            background: #fff;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-style: italic;
+            font-size: 0.9rem;
+            box-shadow: inset 1px 1px 3px rgba(0,0,0,0.4);
+        }
+
+        /* ====== STREAM LIBRARY IMAGES & STREAM PLAYER ====== */
+        .stream-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 12px;
+            padding: 15px;
+            transition: all 0.3s;
+        }
+        .stream-card:hover {
+            transform: translateY(-3px);
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(229, 9, 20, 0.3);
+        }
+        .stream-poster {
+            width: 80px;
+            height: 110px;
+            object-fit: cover;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+        }
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+            height: 0;
+            overflow: hidden;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: #000;
+            margin-top: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+        }
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 0;
+        }
+
     </style>
 </head>
 
@@ -347,21 +517,20 @@
     <!-- SIDE MENU PANEL — outside nav so Bootstrap collapse doesn't affect it -->
     <div id="sideMenu" class="side-menu">
         <div class="menu-header">
-            <h4>Hey!</h4>
+            <h4 id="sideMenuGreeting">Hey!</h4>
             <button onclick="closeMenu()">✖</button>
         </div>
-        <div class="menu-item">
+        <div class="menu-item" id="sideMenuLoginBox">
             🎁 Unlock special offers
             <button class="login-btn" onclick="goToLogin()">Login / Register</button>
         </div>
         <div class="menu-item" onclick="openNotifications()">🔔 Notifications</div>
-        <div class="menu-item" onclick="openOrders()">🧾 Your Orders</div>
+        <div class="menu-item" onclick="window.location.href='my_tickets.html'">🎫 My Tickets</div>
         <div class="menu-item" onclick="openStream()">🎬 Stream Library</div>
         <div class="menu-item" onclick="openCredit()">💳 Play Credit Card</div>
         <div class="menu-item" onclick="openHelp()">💬 Help & Support</div>
         <div class="menu-item" onclick="openSettings()">⚙️ Accounts & Settings</div>
         <div class="menu-item" onclick="window.location.href='rewards.html'">🎁 Rewards</div>
-        <div class="menu-item" onclick="window.location.href='rewards.html'">🔄 BookAChange</div>
     </div>
 
 
@@ -592,6 +761,17 @@
             const loggedInEmail = localStorage.getItem("loggedInUser");
             let username = localStorage.getItem("username");
             
+            // Try loading name from userProfile as well
+            if (loggedInEmail && !username) {
+                try {
+                    const profile = JSON.parse(localStorage.getItem("userProfile"));
+                    if (profile && profile.name) {
+                        username = profile.name;
+                        localStorage.setItem("username", username);
+                    }
+                } catch(e) {}
+            }
+            
             if (loggedInEmail && !username) {
                 try {
                     const userObj = JSON.parse(localStorage.getItem("user"));
@@ -611,6 +791,13 @@
             const usernameOption = document.getElementById("usernameOption");
             const addressOption = document.getElementById("addressOption");
             const navbarUsername = document.getElementById("navbarUsername");
+            
+            // Side panel elements
+            const sideMenuLoginBox = document.getElementById("sideMenuLoginBox");
+            const sideMenuGreeting = document.getElementById("sideMenuGreeting");
+
+            const profileAvatar = document.querySelector(".profile-avatar");
+            const userAvatar = localStorage.getItem("userAvatar") || "🎬";
 
             if (loggedInEmail || username) {
                 if (loginOption) loginOption.classList.add("d-none");
@@ -618,12 +805,20 @@
                 if (usernameOption) usernameOption.classList.remove("d-none");
                 if (addressOption) addressOption.classList.remove("d-none");
                 if (navbarUsername) navbarUsername.textContent = username || loggedInEmail;
+                if (profileAvatar) profileAvatar.innerHTML = userAvatar;
+                
+                if (sideMenuLoginBox) sideMenuLoginBox.style.display = "none";
+                if (sideMenuGreeting) sideMenuGreeting.innerHTML = `<span class="me-2">${userAvatar}</span>Hey, ${username || loggedInEmail.split('@')[0]}!`;
             } else {
                 if (loginOption) loginOption.classList.remove("d-none");
                 if (logoutOption) logoutOption.classList.add("d-none");
                 if (usernameOption) usernameOption.classList.add("d-none");
                 if (addressOption) addressOption.classList.add("d-none");
                 if (navbarUsername) navbarUsername.textContent = "Profile";
+                if (profileAvatar) profileAvatar.innerHTML = `<i class="bi bi-person-fill"></i>`;
+                
+                if (sideMenuLoginBox) sideMenuLoginBox.style.display = "block";
+                if (sideMenuGreeting) sideMenuGreeting.innerHTML = `Hey!`;
             }
         }
         
@@ -724,30 +919,255 @@
             window.location.href = "orders.html";
         }
 
+        // ================= STREAM LIBRARY STREAMS & RENTALS =================
+        const streamStoreMovies = [
+            { id: "stream_interstellar", title: "Interstellar", category: "Sci-Fi / Drama", price: 99, trailer: "https://www.youtube.com/embed/zSWdZVtXT7E", poster: "https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=300" },
+            { id: "stream_dark_knight", title: "The Dark Knight", category: "Action / Thriller", price: 99, trailer: "https://www.youtube.com/embed/LDG9bisJEaI", poster: "https://images.unsplash.com/photo-1478760329108-5c3ed9d495a0?q=80&w=300" },
+            { id: "stream_dune2", title: "Dune: Part Two", category: "Sci-Fi / Adventure", price: 149, trailer: "https://www.youtube.com/embed/Way9Dexny3w", poster: "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?q=80&w=300" }
+        ];
+
         function openStream() {
-            alert("No movies rented yet");
+            closeMenu();
+            const loggedInEmail = localStorage.getItem("loggedInUser");
+            if (!loggedInEmail) {
+                alert("Please login first to access your Stream Library.");
+                window.location.href = "login.html";
+                return;
+            }
+
+            closeStreamVideo();
+
+            const orders = JSON.parse(localStorage.getItem("orders")) || [];
+            const rentedList = JSON.parse(localStorage.getItem("rentedMovies")) || [];
+            const libraryListContainer = document.getElementById("libraryPurchasesList");
+            
+            if (libraryListContainer) {
+                libraryListContainer.innerHTML = "";
+                let purchasedMovies = [];
+
+                orders.forEach(order => {
+                    if (order.category === "Movie" || order.title.toLowerCase().includes("inception") || order.title.toLowerCase().includes("movie")) {
+                        if (!purchasedMovies.some(m => m.title === order.title)) {
+                            purchasedMovies.push({
+                                title: order.title,
+                                category: order.category,
+                                trailer: "https://www.youtube.com/embed/YoHD9XEInc0",
+                                poster: "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=300",
+                                tag: "BOOKED TICKET PASS"
+                            });
+                        }
+                    }
+                });
+
+                rentedList.forEach(movie => {
+                    purchasedMovies.push({
+                        title: movie.title,
+                        category: movie.category,
+                        trailer: movie.trailer,
+                        poster: movie.poster,
+                        tag: "RENTED STREAM"
+                    });
+                });
+
+                if (purchasedMovies.length === 0) {
+                    libraryListContainer.innerHTML = `
+                        <div class="col-12 text-center py-3 text-secondary">
+                            <i class="bi bi-folder-x fs-3 d-block mb-2"></i>
+                            No stream passes or rented movies in your library yet. Rent one below to start streaming!
+                        </div>
+                    `;
+                } else {
+                    purchasedMovies.forEach(movie => {
+                        libraryListContainer.innerHTML += `
+                            <div class="col-md-6">
+                                <div class="stream-card d-flex align-items-center gap-3">
+                                    <img src="${movie.poster}" class="stream-poster" alt="${movie.title}" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=300';">
+                                    <div class="flex-grow-1">
+                                        <span class="badge bg-danger bg-opacity-25 text-danger border border-danger border-opacity-50 mb-1" style="font-size: 0.65rem;">${movie.tag}</span>
+                                        <h6 class="text-white fw-bold mb-1">${movie.title}</h6>
+                                        <p class="text-secondary small mb-2">${movie.category}</p>
+                                        <button class="btn btn-warning btn-sm fw-bold px-3 py-1 rounded-pill" onclick="playMovieStream('${movie.title.replace(/'/g, "\\'")}', '${movie.trailer}')">
+                                            <i class="bi bi-play-fill me-1"></i> Stream Now
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+            }
+
+            const storeListContainer = document.getElementById("storeRentalsList");
+            if (storeListContainer) {
+                storeListContainer.innerHTML = "";
+                const orders = JSON.parse(localStorage.getItem("orders")) || [];
+                const rentedList = JSON.parse(localStorage.getItem("rentedMovies")) || [];
+
+                streamStoreMovies.forEach(movie => {
+                    const isBooked = orders.some(o => o.title === movie.title);
+                    const isRented = rentedList.some(r => r.title === movie.title);
+                    const alreadyOwned = isBooked || isRented;
+                    let actionBtnHTML = "";
+
+                    if (alreadyOwned) {
+                        actionBtnHTML = `<button class="btn btn-secondary btn-sm disabled w-100 rounded-pill" disabled>Owned</button>`;
+                    } else {
+                        actionBtnHTML = `<button class="btn btn-outline-warning btn-sm w-100 rounded-pill fw-bold" onclick="rentMovieStream('${movie.id}', '${movie.title.replace(/'/g, "\\'")}', '${movie.category}', '${movie.trailer}', '${movie.poster}', ${movie.price})">
+                                           Rent for ₹${movie.price}
+                                         </button>`;
+                    }
+
+                    storeListContainer.innerHTML += `
+                        <div class="col-md-4">
+                            <div class="stream-card text-center p-3 h-100 d-flex flex-column justify-content-between">
+                                <div>
+                                    <img src="${movie.poster}" class="stream-poster mb-3 d-block mx-auto" alt="${movie.title}">
+                                    <h6 class="text-white fw-bold mb-1">${movie.title}</h6>
+                                    <p class="text-secondary small mb-3">${movie.category}</p>
+                                </div>
+                                <div>
+                                    ${actionBtnHTML}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            const modal = new bootstrap.Modal(document.getElementById('streamLibraryModal'));
+            modal.show();
         }
 
+        function playMovieStream(title, trailerLink) {
+            document.getElementById("playingMovieTitle").innerText = `Now Streaming: ${title}`;
+            const frame = document.getElementById("streamVideoFrame");
+            if (frame) {
+                frame.src = trailerLink + "?autoplay=1&mute=1";
+            }
+            document.getElementById("streamPlayerSection").style.display = "block";
+            const modalBody = document.querySelector("#streamLibraryModal .modal-body");
+            if (modalBody) {
+                modalBody.scrollTop = 0;
+            }
+        }
+
+        function closeStreamVideo() {
+            const frame = document.getElementById("streamVideoFrame");
+            if (frame) {
+                frame.src = "";
+            }
+            const playerSection = document.getElementById("streamPlayerSection");
+            if (playerSection) {
+                playerSection.style.display = "none";
+            }
+        }
+
+        function rentMovieStream(id, title, category, trailer, poster, price) {
+            const isActivated = localStorage.getItem("playCardActivated") === "true";
+            if (!isActivated) {
+                alert("You need a Play Credit Card to rent movies online. Please open the Play Credit Card option to activate your card first!");
+                return;
+            }
+
+            let balance = parseInt(localStorage.getItem("playCardBalance") || "0");
+            if (balance < price) {
+                alert("Insufficient balance on your Play Credit Card!");
+                return;
+            }
+
+            if (confirm(`Rent "${title}" for ₹${price}? The amount will be charged to your Play Credit Card.`)) {
+                balance -= price;
+                localStorage.setItem("playCardBalance", balance);
+
+                let rented = JSON.parse(localStorage.getItem("rentedMovies")) || [];
+                rented.push({ id, title, category, trailer, poster });
+                localStorage.setItem("rentedMovies", JSON.stringify(rented));
+
+                let points = parseInt(localStorage.getItem("rewardPoints") || "150");
+                points += 10;
+                localStorage.setItem("rewardPoints", points);
+
+                alert(`Successfully rented "${title}"! It has been added to your Stream Library.`);
+                openStream();
+            }
+        }
+
+        // ================= PLAY CREDIT CARD =================
         function openCredit() {
-            alert("Play Credit Card details coming soon");
+            closeMenu();
+            const loggedInEmail = localStorage.getItem("loggedInUser");
+            if (!loggedInEmail) {
+                alert("Please login first to view or apply for the Play Credit Card.");
+                window.location.href = "login.html";
+                return;
+            }
+
+            const isActivated = localStorage.getItem("playCardActivated") === "true";
+            const unactDiv = document.getElementById("playCardUnactivated");
+            const actDiv = document.getElementById("playCardActivated");
+
+            if (isActivated) {
+                if (unactDiv) unactDiv.style.display = "none";
+                if (actDiv) actDiv.style.display = "block";
+
+                let name = localStorage.getItem("username") || loggedInEmail.split("@")[0];
+                try {
+                    const profile = JSON.parse(localStorage.getItem("userProfile"));
+                    if (profile && profile.name) name = profile.name;
+                } catch(e) {}
+
+                const holder = document.getElementById("cardHolderName");
+                if (holder) holder.innerText = name;
+                
+                let balance = localStorage.getItem("playCardBalance");
+                if (balance === null) {
+                    balance = 42500;
+                    localStorage.setItem("playCardBalance", balance);
+                } else {
+                    balance = parseInt(balance);
+                }
+                const balanceSpan = document.getElementById("playCardBalance");
+                if (balanceSpan) balanceSpan.innerText = balance.toLocaleString();
+            } else {
+                if (unactDiv) unactDiv.style.display = "block";
+                if (actDiv) actDiv.style.display = "none";
+            }
+
+            const modal = new bootstrap.Modal(document.getElementById('creditCardModal'));
+            modal.show();
         }
 
-        // HELP
+        function activatePlayCard() {
+            localStorage.setItem("playCardActivated", "true");
+            localStorage.setItem("playCardBalance", 42500);
+            alert("Congratulations! Your Play Virtual Credit Card has been activated with a limit of ₹50,000.");
+            openCredit();
+        }
+
+        function flipCreditCard() {
+            const cardWrap = document.querySelector(".credit-card-wrap");
+            if (cardWrap) {
+                cardWrap.classList.toggle("flipped");
+            }
+        }
+
+        // ================= HELP =================
         function openHelp() {
-            alert("Contact support@eventbook.com");
+            alert("Contact support@eventnest.com");
         }
 
-        // SETTINGS
+        // ================= ACCOUNTS & SETTINGS =================
         function openSettings() {
-            alert("Account settings page coming soon");
+            closeMenu();
+            window.location.href = "settings.html";
         }
 
-        // REWARDS
+        // ================= REWARDS =================
         function openRewards() {
-            alert("You have 0 reward points");
+            window.location.href = "rewards.html";
         }
 
-        // BOOK EXCHANGE
+        // ================= BOOK EXCHANGE =================
         function openExchange() {
             alert("Ticket exchange feature coming soon");
         }
@@ -779,55 +1199,6 @@
             const theme = document.body.classList.contains("dark-mode") ? "dark" : "light";
             localStorage.setItem("theme", theme);
         }
-
-        // ================= GPU-ACCELERATED CUSTOM CINEMATIC CURSOR =================
-        const cursor = document.createElement('div');
-        cursor.classList.add('custom-cursor');
-        const cursorDot = document.createElement('div');
-        cursorDot.classList.add('custom-cursor-dot');
-        document.body.appendChild(cursor);
-        document.body.appendChild(cursorDot);
-
-        let mouseX = -100, mouseY = -100;
-        let tick = false;
-
-        document.addEventListener('mousemove', (e) => {
-            mouseX = e.clientX;
-            mouseY = e.clientY;
-            
-            if (!tick) {
-                requestAnimationFrame(updateCursorPosition);
-                tick = true;
-            }
-        }, { passive: true });
-
-        function updateCursorPosition() {
-            // Apply buttery-smooth GPU composite transformations without browser layout reflow
-            cursor.style.transform = `translate3d(${mouseX}px, ${mouseY}px, 0) translate(-50%, -50%)`;
-            cursorDot.style.transform = `translate3d(${mouseX}px, ${mouseY}px, 0) translate(-50%, -50%)`;
-            tick = false;
-        }
-
-        // High-Performance Event Delegation for Hovers & Clicks (O(1) complexity instead of O(N))
-        document.addEventListener('mouseover', (e) => {
-            const target = e.target.closest('a, button, .card, .event-card, .promo-card, select, input');
-            if (target) {
-                cursor.style.width = '40px';
-                cursor.style.height = '40px';
-                cursor.style.backgroundColor = 'rgba(229, 9, 20, 0.1)';
-                cursor.style.boxShadow = '0 0 15px rgba(229, 9, 20, 0.8)';
-            }
-        }, { passive: true });
-
-        document.addEventListener('mouseout', (e) => {
-            const target = e.target.closest('a, button, .card, .event-card, .promo-card, select, input');
-            if (target) {
-                cursor.style.width = '20px';
-                cursor.style.height = '20px';
-                cursor.style.backgroundColor = 'transparent';
-                cursor.style.boxShadow = '0 0 10px rgba(229, 9, 20, 0.5)';
-            }
-        }, { passive: true });
 
         // CINEMATIC AUDIO CUES
         function playAudioCue(type) {
@@ -1065,6 +1436,14 @@
             } else {
                 console.warn("OneSignal app ID is missing in api_config.js. Floating notification bell remains hidden.");
             }
+
+            // Stop streaming video when Stream Library modal is closed
+            const streamModalEl = document.getElementById('streamLibraryModal');
+            if (streamModalEl) {
+                streamModalEl.addEventListener('hidden.bs.modal', function () {
+                    closeStreamVideo();
+                });
+            }
         });
     </script>
 
@@ -1083,6 +1462,133 @@
         <button class="btn btn-danger rounded-circle d-flex align-items-center justify-content-center onesignal-bell-pulse" id="onesignal-bell" style="width: 50px; height: 50px; background-color: #E50914; border: none;">
             <i class="bi bi-bell-fill fs-5 text-white"></i>
         </button>
+    </div>
+
+
+    <!-- Play Credit Card Modal -->
+    <div class="modal fade modal-dark" id="creditCardModal" tabindex="-1" aria-labelledby="creditCardModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" id="creditCardModalLabel"><i class="bi bi-credit-card-2-front-fill me-2 text-danger"></i> Play Credit Card</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="playCardUnactivated" class="text-center py-4">
+                        <i class="bi bi-credit-card-2-back fs-1 text-secondary mb-3 d-block"></i>
+                        <h4 class="fw-bold">Apply for Play Credit Card</h4>
+                        <p class="text-secondary px-3">Unlock flat 5% cashback on all movie bookings, 0 convenience fees, and 2x reward points on event bookings.</p>
+                        <button onclick="activatePlayCard()" class="btn btn-danger px-4 py-2 mt-3 rounded-pill fw-bold" style="background-color: var(--netflix-red); border: none;">Activate Virtual Card Now</button>
+                    </div>
+
+                    <div id="playCardActivated" style="display: none;">
+                        <!-- 3D Virtual Credit Card -->
+                        <div class="credit-card-wrap" onclick="flipCreditCard()">
+                            <div class="credit-card-inner" id="creditCardInner">
+                                <!-- Card Front -->
+                                <div class="card-front">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="fw-bold text-white tracking-widest" style="font-size: 0.9rem;">PLAY CARD</span>
+                                        <i class="bi bi-wifi fs-4 text-white"></i>
+                                    </div>
+                                    <div class="card-chip my-2"></div>
+                                    <div class="card-number" id="cardFrontNum">4532 8912 3345 8824</div>
+                                    <div class="card-holder-info">
+                                        <div>
+                                            <div class="card-label">Card Holder</div>
+                                            <div class="card-value" id="cardHolderName">Guest</div>
+                                        </div>
+                                        <div class="text-end">
+                                            <div class="card-label">Expires</div>
+                                            <div class="card-value">12/31</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Card Back -->
+                                <div class="card-back">
+                                    <div class="card-magstrip"></div>
+                                    <div>
+                                        <div class="card-label">Signature Panel / CVV</div>
+                                        <div class="card-signature-area">
+                                            <div class="card-cvv" id="cardBackCvv">882</div>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center mt-2">
+                                        <span class="text-secondary" style="font-size: 0.6rem;">Virtual Card for Electronic Use Only</span>
+                                        <span class="fw-bold text-secondary" style="font-size: 0.8rem;">VISA</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="text-center text-muted small mb-4">
+                            <i class="bi bi-info-circle me-1"></i> Tap the card to flip it over and view CVV
+                        </div>
+
+                        <!-- Card Financials -->
+                        <div class="row g-3 p-3 bg-dark bg-opacity-50 border border-secondary border-opacity-25 rounded-3 mb-3">
+                            <div class="col-6 border-end border-secondary border-opacity-25">
+                                <div class="text-muted small uppercase">Credit Limit</div>
+                                <h4 class="fw-bold text-white mb-0">₹50,000</h4>
+                            </div>
+                            <div class="col-6">
+                                <div class="text-muted small uppercase">Available Balance</div>
+                                <h4 class="fw-bold text-success mb-0">₹<span id="playCardBalance">42,500</span></h4>
+                            </div>
+                        </div>
+
+                        <!-- Card Perks -->
+                        <div class="p-2">
+                            <h6 class="fw-bold text-white mb-3">Your Card Benefits:</h6>
+                            <ul class="list-unstyled text-secondary small">
+                                <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i> Flat 5% cash-back credited instantly on movies.</li>
+                                <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i> Free event reschedule and Resale exchange program.</li>
+                                <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i> ₹0 transaction processing fee.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stream Library Modal -->
+    <div class="modal fade modal-dark" id="streamLibraryModal" tabindex="-1" aria-labelledby="streamLibraryModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" id="streamLibraryModalLabel"><i class="bi bi-play-circle-fill me-2 text-danger"></i> Stream Library</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" onclick="closeStreamVideo()"></button>
+                </div>
+                <div class="modal-body">
+                    
+                    <!-- Video player wrapper (hidden by default) -->
+                    <div id="streamPlayerSection" style="display: none; margin-bottom: 25px;">
+                        <h5 class="fw-bold text-white mb-2" id="playingMovieTitle">Now Playing: Trailer</h5>
+                        <div class="video-container">
+                            <iframe id="streamVideoFrame" src="" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mt-2">
+                            <span class="badge bg-danger">LIVE HD STREAM</span>
+                            <button onclick="closeStreamVideo()" class="btn btn-sm btn-outline-light rounded-pill"><i class="bi bi-x-circle me-1"></i> Close Player</button>
+                        </div>
+                        <hr style="border-color: rgba(255,255,255,0.15);">
+                    </div>
+
+                    <!-- Library Movie Section -->
+                    <h6 class="fw-bold text-white mb-3">Your Digital Purchases / Stream Passes:</h6>
+                    <div class="row g-3 mb-4" id="libraryPurchasesList">
+                        <!-- Populated by JavaScript -->
+                    </div>
+
+                    <!-- Store Rentals Section -->
+                    <h6 class="fw-bold text-white mb-3">Popular Stream Store Rentals:</h6>
+                    <div class="row g-3" id="storeRentalsList">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </body>
 </html>
