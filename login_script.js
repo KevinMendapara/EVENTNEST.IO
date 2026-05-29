@@ -6,6 +6,16 @@ function togglePassword(id) {
   }
 }
 
+// PASSWORD HASHING HELPER (SHA-256)
+async function hashPassword(password) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(password);
+  const hash = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hash));
+  const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  return hashHex;
+}
+
 // EMAIL VALIDATION
 function isValidEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -37,25 +47,17 @@ document.getElementById("forgotForm").addEventListener("submit", function (e) {
 });
 
 // LOGIN SUBMIT
-document.getElementById("loginForm").addEventListener("submit", function (e) {
+document.getElementById("loginForm").addEventListener("submit", async function (e) {
   e.preventDefault();
 
   let email = document.getElementById("loginEmail").value.trim().toLowerCase();
   let password = document.getElementById("loginPassword").value.trim();
   let remember = document.getElementById("rememberMe").checked;
 
-  // HARDCODED ADMIN LOGIN Redirect
-  if (email === "adminxeventnest@gmail.com" && password === "adminxx1234") {
-      if (remember) localStorage.setItem("session", "true");
-      localStorage.setItem("loggedInUser", email);
-      localStorage.setItem("userProfile", JSON.stringify({ name: "Admin", email, role: "admin" }));
-      alert("Welcome to Admin Portal!");
-      window.location.href = "admin.html";
-      return;
-  }
+  const hashedPassword = await hashPassword(password);
 
   if (typeof supabaseClient !== 'undefined' && !SUPABASE_URL.includes('YOUR-PROJECT-ID')) {
-      supabaseClient.from('users').select('*').eq('email', email).eq('password', password).then(({data, error}) => {
+      supabaseClient.from('users').select('*').eq('email', email).eq('password', hashedPassword).then(({data, error}) => {
           if (error || !data || data.length === 0) {
               alert("Invalid credentials from Cloud DB");
           } else {
@@ -64,7 +66,23 @@ document.getElementById("loginForm").addEventListener("submit", function (e) {
       });
   } else {
       let user = JSON.parse(localStorage.getItem("user"));
-      if (user && user.email === email && user.password === password) {
+      
+      // Auto-seed default admin locally if no user exists and logging in as admin
+      if (!user && email === "adminxeventnest@gmail.com") {
+          const defaultAdminPassword = "adminxx1234";
+          const adminHash = await hashPassword(defaultAdminPassword);
+          user = {
+              name: "Admin",
+              email: "adminxeventnest@gmail.com",
+              password: adminHash,
+              role: "admin",
+              phone: "1234567890",
+              city: "Jaipur"
+          };
+          localStorage.setItem("user", JSON.stringify(user));
+      }
+
+      if (user && user.email === email && user.password === hashedPassword) {
           completeLogin(email, remember, user);
       } else {
           alert("Invalid credentials from Local Storage");
@@ -82,7 +100,11 @@ document.getElementById("loginForm").addEventListener("submit", function (e) {
           localStorage.removeItem("loginRedirectUrl");
           window.location.href = redirectUrl;
       } else {
-          window.location.href = "index.html";
+          if (userObj && userObj.role === 'admin') {
+              window.location.href = "admin.html";
+          } else {
+              window.location.href = "index.html";
+          }
       }
   }
 });

@@ -371,6 +371,15 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
+        async function hashPassword(password) {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(password);
+            const hash = await crypto.subtle.digest('SHA-256', data);
+            const hashArray = Array.from(new Uint8Array(hash));
+            const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            return hashHex;
+        }
+
         document.addEventListener("DOMContentLoaded", () => {
             const loggedInEmail = localStorage.getItem("loggedInUser");
             if (!loggedInEmail) {
@@ -508,7 +517,7 @@
             loadAccountSettings();
         }
 
-        function savePasswordSettings(e) {
+        async function savePasswordSettings(e) {
             e.preventDefault();
             const currentPwd = document.getElementById("currentPassword").value.trim();
             const newPwd = document.getElementById("newPassword").value.trim();
@@ -532,13 +541,16 @@
                 return;
             }
 
+            const currentHashed = await hashPassword(currentPwd);
+            const newHashed = await hashPassword(newPwd);
+
             if (typeof supabaseClient !== 'undefined' && !SUPABASE_URL.includes('YOUR-PROJECT-ID')) {
-                supabaseClient.from('users').select('*').eq('email', loggedInEmail).eq('password', currentPwd)
+                supabaseClient.from('users').select('*').eq('email', loggedInEmail).eq('password', currentHashed)
                     .then(({data, error}) => {
                         if (error || !data || data.length === 0) {
                             alert("Incorrect current password validation!");
                         } else {
-                            supabaseClient.from('users').update({ password: newPwd }).eq('email', loggedInEmail)
+                            supabaseClient.from('users').update({ password: newHashed }).eq('email', loggedInEmail)
                                 .then(({error}) => {
                                     if (error) {
                                         alert("Failed to update cloud password: " + error.message);
@@ -552,11 +564,11 @@
             } else {
                 let user = JSON.parse(localStorage.getItem("user"));
                 if (user && user.email === loggedInEmail) {
-                    if (user.password !== currentPwd) {
+                    if (user.password !== currentHashed) {
                         alert("Incorrect current password!");
                         return;
                     }
-                    user.password = newPwd;
+                    user.password = newHashed;
                     localStorage.setItem("user", JSON.stringify(user));
                     alert("Password updated successfully locally!");
                     document.getElementById("changePasswordForm").reset();
