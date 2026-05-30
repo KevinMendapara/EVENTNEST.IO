@@ -6,19 +6,6 @@
 // =========================================================================
 
 document.addEventListener('DOMContentLoaded', () => {
-    // ---- Admin Security Gate ----
-    const loggedInEmail = localStorage.getItem("loggedInUser");
-    let userProfile = null;
-    try {
-        userProfile = JSON.parse(localStorage.getItem("userProfile"));
-    } catch(e) {}
-
-    if (loggedInEmail !== 'adminxeventnest@gmail.com' || !userProfile || userProfile.role !== 'admin') {
-        alert("Access Denied: You do not have permission to view the Admin Portal.");
-        window.location.href = "login.html";
-        return;
-    }
-
     // ---- Navigation Logic ----
     const navItems = document.querySelectorAll('.nav-item');
     const sections = document.querySelectorAll('.section');

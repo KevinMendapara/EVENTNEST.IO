@@ -23,3 +23,19 @@ async function checkSupabaseConnection() {
     }
     return true;
 }
+
+// Hash a password using SHA-256 (via browser Web Crypto API)
+async function hashPassword(password) {
+    if (!password) return '';
+    const encoder = new TextEncoder();
+    const data = encoder.encode(password);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+// Check if a password is a valid 64-character SHA-256 hash
+function isHashed(password) {
+    if (!password) return false;
+    return /^[0-9a-f]{64}$/i.test(password);
+}

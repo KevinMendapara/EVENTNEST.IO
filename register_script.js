@@ -1,15 +1,5 @@
 let generatedOTP = "";
 
-// PASSWORD HASHING HELPER (SHA-256)
-async function hashPassword(password) {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(password);
-  const hash = await crypto.subtle.digest('SHA-256', data);
-  const hashArray = Array.from(new Uint8Array(hash));
-  const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-  return hashHex;
-}
-
 // SHOW PASSWORD
 function togglePassword(id) {
   let input = document.getElementById(id);
@@ -91,7 +81,7 @@ document.getElementById("registerForm").addEventListener("submit", async functio
   const hashedPassword = await hashPassword(password);
 
   // Store temporary user info in localStorage for OTP verification step
-  localStorage.setItem("temp_user", JSON.stringify({ name, email, phone, city, password: hashedPassword, role: "customer" }));
+  localStorage.setItem("temp_user", JSON.stringify({ name, email, phone, city, password: hashedPassword }));
 
   // GENERATE OTP
   generatedOTP = Math.floor(1000 + Math.random() * 9000).toString();

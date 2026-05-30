@@ -371,15 +371,6 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-        async function hashPassword(password) {
-            const encoder = new TextEncoder();
-            const data = encoder.encode(password);
-            const hash = await crypto.subtle.digest('SHA-256', data);
-            const hashArray = Array.from(new Uint8Array(hash));
-            const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-            return hashHex;
-        }
-
         document.addEventListener("DOMContentLoaded", () => {
             const loggedInEmail = localStorage.getItem("loggedInUser");
             if (!loggedInEmail) {
@@ -541,34 +532,53 @@
                 return;
             }
 
-            const currentHashed = await hashPassword(currentPwd);
-            const newHashed = await hashPassword(newPwd);
+            const currentPwdHash = await hashPassword(currentPwd);
+            const newPwdHash = await hashPassword(newPwd);
 
             if (typeof supabaseClient !== 'undefined' && !SUPABASE_URL.includes('YOUR-PROJECT-ID')) {
-                supabaseClient.from('users').select('*').eq('email', loggedInEmail).eq('password', currentHashed)
+                supabaseClient.from('users').select('*').eq('email', loggedInEmail)
                     .then(({data, error}) => {
                         if (error || !data || data.length === 0) {
                             alert("Incorrect current password validation!");
                         } else {
-                            supabaseClient.from('users').update({ password: newHashed }).eq('email', loggedInEmail)
-                                .then(({error}) => {
-                                    if (error) {
-                                        alert("Failed to update cloud password: " + error.message);
-                                    } else {
-                                        alert("Password updated successfully in Cloud DB!");
-                                        document.getElementById("changePasswordForm").reset();
-                                    }
-                                });
+                            const dbUser = data[0];
+                            let matched = false;
+                            if (isHashed(dbUser.password)) {
+                                matched = (dbUser.password === currentPwdHash);
+                            } else {
+                                matched = (dbUser.password === currentPwd);
+                            }
+
+                            if (!matched) {
+                                alert("Incorrect current password validation!");
+                            } else {
+                                supabaseClient.from('users').update({ password: newPwdHash }).eq('email', loggedInEmail)
+                                    .then(({error}) => {
+                                        if (error) {
+                                            alert("Failed to update cloud password: " + error.message);
+                                        } else {
+                                            alert("Password updated successfully in Cloud DB!");
+                                            document.getElementById("changePasswordForm").reset();
+                                        }
+                                    });
+                            }
                         }
                     });
             } else {
                 let user = JSON.parse(localStorage.getItem("user"));
                 if (user && user.email === loggedInEmail) {
-                    if (user.password !== currentHashed) {
+                    let matched = false;
+                    if (isHashed(user.password)) {
+                        matched = (user.password === currentPwdHash);
+                    } else {
+                        matched = (user.password === currentPwd);
+                    }
+
+                    if (!matched) {
                         alert("Incorrect current password!");
                         return;
                     }
-                    user.password = newHashed;
+                    user.password = newPwdHash;
                     localStorage.setItem("user", JSON.stringify(user));
                     alert("Password updated successfully locally!");
                     document.getElementById("changePasswordForm").reset();
